@@ -14,6 +14,7 @@ module Fastlane
         platform = params[:platform]
         path = params[:localization_path]
         language_titles = params[:language_titles]
+        default_language = params[:default_language]
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
         worksheet = spreadsheet.worksheets.first
@@ -47,7 +48,7 @@ module Fastlane
             result.push(language)
           end
         end
-        self.createFiles(result, platform, path)
+        self.createFiles(result, platform, path, default_language)
       end
 
       def self.generateJSONObject(contentRows, index)
@@ -62,12 +63,6 @@ module Fastlane
 
           return result
 
-      end
-
-      def self.writeToJSONFile(languages)
-        File.open("output.json","w") do |f|
-          f.write(JSON.pretty_generate(languages))
-        end
       end
 
       def self.generateSingleObject(row, column)
@@ -87,8 +82,15 @@ module Fastlane
 
       end
 
-      def self.createFiles(languages, platform, destinationPath)
-          languages.each { |language| self.createFileForLanguage(language, platform, destinationPath) }
+      def filterUnusedRows(items, identifier)
+        return items.select { |item|
+            iosIdentifier = item[identifier]
+            iosIdentifier != "NR" && iosIdentifier != ""
+        }
+      end
+
+      def self.createFiles(languages, platform, destinationPath, defaultLanguage)
+          self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage)
 
           if platform == "ios"
 
@@ -135,29 +137,38 @@ module Fastlane
           end
       end
 
-      def self.createFileForLanguage(language, platform, destinationPath)
+      def self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage)
+
+        languages.each { |language|
+
         if platform == "ios"
 
-          filteredItems = language["items"].select { |item|
-              iosIdentifier = item['identifierIos']
-              iosIdentifier != "NR" && iosIdentifier != ""
-          }
+          filteredItems = self.filterUnusedRows(language["items"],'identifierIos')
 
           filename = "Localizable.strings"
           filepath = "#{destinationPath}/#{language['language']}.lproj/#{filename}"
           FileUtils.mkdir_p "#{destinationPath}/#{language['language']}.lproj"
           File.open(filepath, "w") do |f|
-            filteredItems.each { |item|
+            filteredItems.each_with_index { |item, index|
 
               text = self.mapInvalidPlaceholder(item['text'])
               comment = item['comment']
               identifier = item['identifierIos']
 
               line = ""
-
               if identifier.include?('//')
                 line = "\n\n#{identifier}\n"
               else
+
+                if text == "" || text == "TBD"
+                  default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
+                  default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
+
+                  defaultLanguageText = default_language_object[index]['text']
+                  puts "found empty text for identifier: #{identifier} for language:#{language['language']}, replaceing it with #{defaultLanguageText}"
+                  text = self.mapInvalidPlaceholder(defaultLanguageText)
+                end
+
                 line = "\"#{identifier}\" = \"#{text}\";"
               if !comment.to_s.empty?
                  line = line + " //#{comment}\n"
@@ -205,6 +216,7 @@ module Fastlane
             f.write("</resources>\n")
           end
         end
+        }
       end
 
       def self.createiOSFileEndString()
@@ -314,6 +326,11 @@ module Fastlane
                                description: "Alle language titles",
                                   optional: false,
                                       type: Array),
+          FastlaneCore::ConfigItem.new(key: :default_language,
+                                  env_name: "DEFAULT_LANGUAGE",
+                               description: "Default Language",
+                                  optional: false,
+                                      type: String),
           FastlaneCore::ConfigItem.new(key: :localization_path,
                                   env_name: "LOCALIZATION_PATH",
                                description: "Output path",
