@@ -82,7 +82,7 @@ module Fastlane
 
       end
 
-      def filterUnusedRows(items, identifier)
+      def self.filterUnusedRows(items, identifier)
         return items.select { |item|
             iosIdentifier = item[identifier]
             iosIdentifier != "NR" && iosIdentifier != ""
