@@ -16,7 +16,7 @@ module Fastlane
         # Get the first worksheet
         worksheet = spreadsheet.worksheets.first
 
-        languages = numberOfLanguages(worksheet)
+        languages = self.numberOfLanguages(worksheet)
 
         result = []
 
@@ -44,13 +44,13 @@ module Fastlane
           result.push(language)
 
         end
-        createFiles(result, platform, path)
+        self.createFiles(result, platform, path)
       end
 
-      def generateJSONObject(contentRows, index)
+      def self.generateJSONObject(contentRows, index)
           result = Array.new
           for i in 0..contentRows.count - 1
-              item = generateSingleObject(contentRows[i], index)
+              item = self.generateSingleObject(contentRows[i], index)
 
               if item[:identifierIos] != "" && item[:identifierAndroid] != ""
                 result.push(item)
@@ -61,13 +61,13 @@ module Fastlane
 
       end
 
-      def writeToJSONFile(languages)
+      def self.writeToJSONFile(languages)
         File.open("output.json","w") do |f|
           f.write(JSON.pretty_generate(languages))
         end
       end
 
-      def generateSingleObject(row, column)
+      def self.generateSingleObject(row, column)
         identifierIos = row[0]
         identifierAndroid = row[1]
 
@@ -84,8 +84,8 @@ module Fastlane
 
       end
 
-      def createFiles(languages, platform, destinationPath)
-          languages.each { |language| createFileForLanguage(language, platform, destinationPath) }
+      def self.createFiles(languages, platform, destinationPath)
+          languages.each { |language| self.createFileForLanguage(language, platform, destinationPath) }
 
           if platform == "ios"
 
@@ -113,27 +113,24 @@ module Fastlane
                   end
                 end
 
-                text = mapInvalidPlaceholder(item['text'])
+                text = self.mapInvalidPlaceholder(item['text'])
 
-                arguments = findArgumentsInText(text)
-
-                puts "Arguments"
-                puts arguments.count
+                arguments = self.findArgumentsInText(text)
 
                 if arguments.count == 0
                   f.write("\n\t///Sheet comment: #{item['comment']}\n\tpublic static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
                 else
-                  f.write(createiOSFunction(constantName, identifier, arguments, item['comment']))
+                  f.write(self.createiOSFunction(constantName, identifier, arguments, item['comment']))
                 end
               }
               f.write("\n}")
-              f.write(createiOSFileEndString())
+              f.write(self.createiOSFileEndString())
             end
 
           end
       end
 
-      def createFileForLanguage(language, platform, destinationPath)
+      def self.createFileForLanguage(language, platform, destinationPath)
         if platform == "ios"
 
           swiftFilename = "Localization.swift"
@@ -148,7 +145,7 @@ module Fastlane
           File.open(filepath, "w") do |f|
             filteredItems.each { |item|
 
-              text = mapInvalidPlaceholder(item['text'])
+              text = self.mapInvalidPlaceholder(item['text'])
 
               f.write("//#{item['comment']}\n\"#{item['identifierIos']}\" = \"#{text}\";\n")
             }
@@ -168,11 +165,11 @@ module Fastlane
         end
       end
 
-      def createiOSFileEndString()
+      def self.createiOSFileEndString()
         return "\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle.main, comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String(format: format, locale: Locale.current, arguments: args)\n\t}\n}"
       end
 
-      def createiOSFunction(constantName, identifier, arguments, comment)
+      def self.createiOSFunction(constantName, identifier, arguments, comment)
           functionTitle = "\n\t///Sheet comment: #{comment}\n\tpublic static func #{constantName}("
 
           arguments.each_with_index do |item, index|
@@ -197,11 +194,9 @@ module Fastlane
           return functionTitle
       end
 
-      def findArgumentsInText(text)
+      def self.findArgumentsInText(text)
         result = Array.new
-        filtered = mapInvalidPlaceholder(text)
-
-        puts filtered
+        filtered = self.mapInvalidPlaceholder(text)
 
         stringIndexes = (0 ... filtered.length).find_all { |i| filtered[i,2] == '%@' }
         intIndexes = (0 ... filtered.length).find_all { |i| filtered[i,2] == '%d' }
@@ -224,23 +219,15 @@ module Fastlane
           result = result.concat(doubleIndexes.map { |e| { "index": e, "type": "Double" }})
         end
 
-        puts result
-        result = result.sort { |a, b| a[:index] <=> b[:index] }
-        puts result
-
-        puts "count"
-        puts result.count
-
-
         return result
       end
 
-      def mapInvalidPlaceholder(text)
+      def self.mapInvalidPlaceholder(text)
         filtered = text.gsub('%s', '%@')
         return filtered
       end
 
-      def numberOfLanguages(worksheet)
+      def self.numberOfLanguages(worksheet)
         i = worksheet.num_cols
         return i - 3
       end
