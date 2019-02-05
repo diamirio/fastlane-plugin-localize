@@ -138,9 +138,6 @@ module Fastlane
       def self.createFileForLanguage(language, platform, destinationPath)
         if platform == "ios"
 
-          swiftFilename = "Localization.swift"
-          swiftFilepath = "#{destinationPath}/#{swiftFilename}"
-
           filteredItems = language["items"].select { |item|
               iosIdentifier = item['identifierIos']
               iosIdentifier != "NR" && iosIdentifier != ""
@@ -148,7 +145,7 @@ module Fastlane
 
           filename = "Localizable.strings"
           filepath = "#{destinationPath}/#{language['language']}.lproj/#{filename}"
-          FileUtils.mkdir_p language['language']
+          FileUtils.mkdir_p "#{destinationPath}/#{language['language']}.lproj"
           File.open(filepath, "w") do |f|
             filteredItems.each { |item|
 
