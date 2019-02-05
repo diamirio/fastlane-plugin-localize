@@ -10,6 +10,7 @@ module Fastlane
         spreadsheet_id = "https://docs.google.com/spreadsheets/d/#{params[:sheet_id]}"
         tabs = params[:tabs]
         plaform = params[:platform]
+        path = params[:localization_path]
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
 
@@ -38,7 +39,7 @@ module Fastlane
 
           filterdWorksheets.each { |worksheet|
             contentRows = worksheet.rows.drop(1)
-            language['items'].concat(generateJSONObject(contentRows, i))
+            language['items'].concat(self.generateJSONObject(contentRows, i))
           }
 
           result.push(language)
@@ -264,13 +265,19 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :platform,
                                   env_name: "PLATFORM",
                                description: "Plaform, ios or android",
-                                  optional: "ios",
+                                  optional: true,
+                             default_value: "ios",
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :tabs,
                                   env_name: "TABS",
                                description: "Array of all Google Sheet Tabs",
                                   optional: false,
-                                      type: Array)
+                                      type: Array),
+          FastlaneCore::ConfigItem.new(key: :localization_path,
+                                  env_name: "LOCALIZATION_PATH",
+                               description: "Output path",
+                                  optional: false,
+                                      type: String)
         ]
       end
 
