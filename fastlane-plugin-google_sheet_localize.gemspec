@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = 'mario_hahn@me.com'
 
   spec.summary       = 'Creates .strings files for iOS and strings.xml files for Android'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-google_sheet_localize"
+  spec.homepage      = "https://github.com/tailoredmedia/fastlane-plugin-localize"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
