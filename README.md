@@ -14,13 +14,25 @@ fastlane add_plugin google_sheet_localize
 
 Creates .strings files for iOS and strings.xml files for Android
 
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+to use this plugin you have to copy this google sheet: https://docs.google.com/spreadsheets/d/1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc/edit?usp=sharing
+
 
 ## Example
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
-**Note to author:** Please set up a sample project to make it easy for users to explore what your plugin does. Provide everything that is necessary to try out the plugin in this project (including a sample Xcode/Android project if necessary)
+```bash
+  lane :localize do
+    google_sheet_localize(service_account_path: "./fastlane/google_drive_credentials.json",
+                                      sheet_id: "12P-zhTl3frWOh_jc9eITzvv7kNhQ2J-7V26SWQZRYLQ",
+                                      platform: "ios",
+                                          tabs: ["3TV"],
+                             localization_path: "./Kit/TVKit",
+                               language_titles: ["de", "en"],
+                              default_language: "de")
+  end
+```
+
 
 ## Run tests for this plugin
 
