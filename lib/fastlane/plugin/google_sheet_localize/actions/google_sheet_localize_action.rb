@@ -1,4 +1,6 @@
 require 'fastlane/action'
+require 'google_drive'
+
 require_relative '../helper/google_sheet_localize_helper'
 
 module Fastlane
