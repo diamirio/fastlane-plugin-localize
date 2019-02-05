@@ -19,12 +19,10 @@ to use this plugin you have to copy this google sheet: https://docs.google.com/s
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
-
 ```bash
   lane :localize do
     google_sheet_localize(service_account_path: "./fastlane/google_drive_credentials.json",
-                                      sheet_id: "12P-zhTl3frWOh_jc9eITzvv7kNhQ2J-7V26SWQZRYLQ",
+                                      sheet_id: "sheet id",
                                       platform: "ios",
                                           tabs: ["3TV"],
                              localization_path: "./Kit/TVKit",
