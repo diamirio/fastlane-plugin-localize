@@ -8,7 +8,7 @@ module Fastlane
     class GoogleSheetLocalizeAction < Action
       def self.run(params)
 
-        session = GoogleDrive::Session.from_service_account_key(params[:service_account_path])
+        session = ::GoogleDrive::Session.from_service_account_key(params[:service_account_path])
         spreadsheet_id = "https://docs.google.com/spreadsheets/d/#{params[:sheet_id]}"
         tabs = params[:tabs]
         plaform = params[:platform]
