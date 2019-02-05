@@ -195,7 +195,10 @@ module Fastlane
           File.open("#{destinationPath}/#{languageDir}/strings.xml", "w") do |f|
             f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
             f.write("<resources>\n")
-            language["items"].each { |item|
+
+            filteredItems = self.filterUnusedRows(language["items"],'identifierAndroid')
+
+            filteredItems.each { |item|
 
               comment = item['comment']
               identifier = item['identifierAndroid']
@@ -206,6 +209,15 @@ module Fastlane
 
                 if !comment.to_s.empty?
                   line = line + "\t<!--#{comment}-->\n"
+                end
+
+                if text == "" || text == "TBD"
+                  default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
+                  default_language_object = self.filterUnusedRows(default_language_object,'identifierAndroid')
+
+                  defaultLanguageText = default_language_object[index]['text']
+                  puts "found empty text for identifier: #{identifier} for language:#{language['language']}, replaceing it with #{defaultLanguageText}"
+                  text = defaultLanguageText
                 end
 
                 line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
@@ -220,14 +232,13 @@ module Fastlane
       end
 
       def self.createiOSFileEndString()
-        return "\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle.main, comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String(format: format, locale: Locale.current, arguments: args)\n\t}\n}"
+        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String(format: format, locale: Locale.current, arguments: args)\n\t}\n}"
       end
 
       def self.createiOSFunction(constantName, identifier, arguments, comment)
           functionTitle = "\n\t///Sheet comment: #{comment}\n\tpublic static func #{constantName}("
 
           arguments.each_with_index do |item, index|
-            puts item
             functionTitle = functionTitle + "_ arg#{index}: #{item[:type]}"
             if index < arguments.count - 1
               functionTitle = functionTitle + ", "
