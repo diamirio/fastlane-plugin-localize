@@ -175,12 +175,35 @@ module Fastlane
         end
 
         if platform == "android"
-          FileUtils.mkdir_p "values-#{language['language']}"
-          File.open("values-#{language['language']}/strings.xml", "w") do |f|
+          languageDir = language['language']
+
+          if languageDir == "en"
+            languageDir = "values"
+          else
+            languageDir = "values-#{languageDir}"
+          end
+
+          FileUtils.mkdir_p "#{destinationPath}/#{languageDir}"
+          File.open("#{destinationPath}/#{languageDir}/strings.xml", "w") do |f|
             f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
             f.write("<resources>\n")
             language["items"].each { |item|
-              f.write("\t<!--#{item['comment']}-->\n\t<string name=\"#{item['identifierAndroid']}\"><![CDATA[#{item['text']}]]></string>\n")
+
+              comment = item['comment']
+              identifier = item['identifierAndroid']
+              text = item['text']
+
+              if !identifier.to_s.empty? && identifier != "NR"
+                line = ""
+
+                if !comment.to_s.empty?
+                  line = line + "\t<!--#{comment}-->\n"
+                end
+
+                line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
+
+                f.write(line)
+              end
             }
             f.write("</resources>\n")
           end
