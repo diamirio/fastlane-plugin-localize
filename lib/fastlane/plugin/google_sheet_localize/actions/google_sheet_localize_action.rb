@@ -13,39 +13,39 @@ module Fastlane
         tabs = params[:tabs]
         platform = params[:platform]
         path = params[:localization_path]
+        language_titles = params[:language_titles]
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
-
-        # Get the first worksheet
         worksheet = spreadsheet.worksheets.first
-
-        languages = self.numberOfLanguages(worksheet)
 
         result = []
 
-        for i in 2..1+languages
+        for i in 0..worksheet.max_cols
+
           title = worksheet.rows[0][i]
 
-          language = {
-            'language' => title,
-            'items' => []
-          }
+          if language_titles.include?(title)
 
-          filterdWorksheets = []
+            language = {
+              'language' => title,
+              'items' => []
+            }
 
-          if tabs.count == 0
-            filterdWorksheets = spreadsheet.worksheets
-          else
-            filterdWorksheets = spreadsheet.worksheets.select { |item| tabs.include?(item.title) }
+            filterdWorksheets = []
+
+            if tabs.count == 0
+              filterdWorksheets = spreadsheet.worksheets
+            else
+              filterdWorksheets = spreadsheet.worksheets.select { |item| tabs.include?(item.title) }
+            end
+
+            filterdWorksheets.each { |worksheet|
+              contentRows = worksheet.rows.drop(1)
+              language['items'].concat(self.generateJSONObject(contentRows, i))
+            }
+
+            result.push(language)
           end
-
-          filterdWorksheets.each { |worksheet|
-            contentRows = worksheet.rows.drop(1)
-            language['items'].concat(self.generateJSONObject(contentRows, i))
-          }
-
-          result.push(language)
-
         end
         self.createFiles(result, platform, path)
       end
@@ -269,11 +269,6 @@ module Fastlane
         return filtered
       end
 
-      def self.numberOfLanguages(worksheet)
-        i = worksheet.num_cols
-        return i - 3
-      end
-
       def self.description
         "Creates .strings files for iOS and strings.xml files for Android"
       end
@@ -312,6 +307,11 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :tabs,
                                   env_name: "TABS",
                                description: "Array of all Google Sheet Tabs",
+                                  optional: false,
+                                      type: Array),
+          FastlaneCore::ConfigItem.new(key: :language_titles,
+                                  env_name: "LANGUAGE_TITLES",
+                               description: "Alle language titles",
                                   optional: false,
                                       type: Array),
           FastlaneCore::ConfigItem.new(key: :localization_path,
