@@ -95,8 +95,10 @@ module Fastlane
             swiftFilename = "Localization.swift"
             swiftFilepath = "#{destinationPath}/#{swiftFilename}"
 
-            #removes all identififiers with the label Not Required
-            filteredItems = languages[0]["items"].select { |item| item['identifierIos'] != "NR" }
+            filteredItems = languages[0]["items"].select { |item|
+                iosIdentifier = item['identifierIos']
+                iosIdentifier != "NR" && iosIdentifier != "" && !iosIdentifier.include?('//')
+            }
 
             File.open(swiftFilepath, "w") do |f|
               f.write("import Foundation\n\n\npublic struct Localization {\n")
@@ -139,8 +141,10 @@ module Fastlane
           swiftFilename = "Localization.swift"
           swiftFilepath = "#{destinationPath}/#{swiftFilename}"
 
-          #removes all identififiers with the label Not Required
-          filteredItems = language["items"].select { |item| item['identifierIos'] != "NR" }
+          filteredItems = language["items"].select { |item|
+              iosIdentifier = item['identifierIos']
+              iosIdentifier != "NR" && iosIdentifier != ""
+          }
 
           filename = "Localizable.strings"
           filepath = "#{destinationPath}/#{language['language']}.lproj/#{filename}"
@@ -149,8 +153,21 @@ module Fastlane
             filteredItems.each { |item|
 
               text = self.mapInvalidPlaceholder(item['text'])
+              comment = item['comment']
+              identifier = item['identifierIos']
 
-              f.write("//#{item['comment']}\n\"#{item['identifierIos']}\" = \"#{text}\";\n")
+              line = ""
+
+              if identifier.include?('//')
+                line = "\n\n#{identifier}\n"
+              else
+                line = "\"#{identifier}\" = \"#{text}\";"
+              if !comment.to_s.empty?
+                 line = line + " //#{comment}\n"
+              end
+              end
+
+              f.write(line)
             }
           end
         end
