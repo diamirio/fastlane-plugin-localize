@@ -250,7 +250,7 @@ module Fastlane
       end
 
       def self.authors
-        ["Mario Hahn"]
+        ["Mario Hahn", "Thomas Koller"]
       end
 
       def self.return_value
