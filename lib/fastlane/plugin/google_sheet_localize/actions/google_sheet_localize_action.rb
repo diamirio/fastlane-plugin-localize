@@ -245,7 +245,7 @@ module Fastlane
       end
 
       def self.mapInvalidPlaceholder(text)
-        filtered = text.gsub('%s', '%@')
+        filtered = text.gsub('%s', '%@').gsub('"', '\"')
         return filtered
       end
 
