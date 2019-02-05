@@ -11,7 +11,7 @@ module Fastlane
         session = ::GoogleDrive::Session.from_service_account_key(params[:service_account_path])
         spreadsheet_id = "https://docs.google.com/spreadsheets/d/#{params[:sheet_id]}"
         tabs = params[:tabs]
-        plaform = params[:platform]
+        platform = params[:platform]
         path = params[:localization_path]
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
