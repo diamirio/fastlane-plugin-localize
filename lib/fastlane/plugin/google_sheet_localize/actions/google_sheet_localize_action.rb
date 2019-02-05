@@ -164,6 +164,8 @@ module Fastlane
                 line = "\"#{identifier}\" = \"#{text}\";"
               if !comment.to_s.empty?
                  line = line + " //#{comment}\n"
+               else
+                 line = line + "\n"
               end
               end
 
