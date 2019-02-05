@@ -103,7 +103,7 @@ module Fastlane
             }
 
             File.open(swiftFilepath, "w") do |f|
-              f.write("import Foundation\n\n\npublic struct Localization {\n")
+              f.write("import Foundation\n\n// swiftlint:disable file_length\npublic struct Localization {\n")
               filteredItems.each { |item|
 
                 identifier = item['identifierIos']
@@ -165,7 +165,7 @@ module Fastlane
                   default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
 
                   defaultLanguageText = default_language_object[index]['text']
-                  puts "found empty text for identifier: #{identifier} for language:#{language['language']}, replaceing it with #{defaultLanguageText}"
+                  puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
                   text = self.mapInvalidPlaceholder(defaultLanguageText)
                 end
 
@@ -216,7 +216,7 @@ module Fastlane
                   default_language_object = self.filterUnusedRows(default_language_object,'identifierAndroid')
 
                   defaultLanguageText = default_language_object[index]['text']
-                  puts "found empty text for identifier: #{identifier} for language:#{language['language']}, replaceing it with #{defaultLanguageText}"
+                  puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
                   text = defaultLanguageText
                 end
 
