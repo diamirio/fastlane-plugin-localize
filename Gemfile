@@ -1,5 +1,7 @@
 source('https://rubygems.org')
 
+gem "google_drive"
+
 gemspec
 
 plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')

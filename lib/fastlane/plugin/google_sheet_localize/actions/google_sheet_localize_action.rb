@@ -5,7 +5,10 @@ module Fastlane
   module Actions
     class GoogleSheetLocalizeAction < Action
       def self.run(params)
-        session = GoogleDrive::Session.from_service_account_key(CREDENTIALS_PATH)
+
+        UI.message("Using config file: #{params[:localize_credentials]}")
+
+        session = Helper::GoogleSheetLocalizeHelper.setup(params[:localize_credentials])
         ##
         # Ensure valid credentials, either by restoring from the saved credentials
         # files or intitiating an OAuth2 authorization. If authorization is required,
@@ -66,6 +69,11 @@ module Fastlane
            FastlaneCore::ConfigItem.new(key: :localize_sheet_id,
                                    env_name: "LOCALIZE_SHEET_ID",
                                 description: "Your Google-spreadsheet id",
+                                   optional: false,
+                                       type: String),
+           FastlaneCore::ConfigItem.new(key: :localize_credentials,
+                                   env_name: "LOCALIZE_CREDENTIALS",
+                                description: "Credentials Key path",
                                    optional: false,
                                        type: String)
         ]
