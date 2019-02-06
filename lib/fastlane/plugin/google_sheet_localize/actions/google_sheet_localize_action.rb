@@ -109,15 +109,17 @@ module Fastlane
 
                 identifier = item['identifierIos']
 
-                values = identifier.dup.gsub('.', ' ').split(" ")
+                values = identifier.dup.split(".")
 
                 constantName = ""
 
                 values.each_with_index do |item, index|
                   if index == 0
-                    constantName += item.downcase
+                    item[0] = item[0].downcase
+                    constantName += item
                   else
-                    constantName += item.capitalize
+                    item[0] = item[0].upcase
+                    constantName += item
                   end
                 end
 
