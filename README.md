@@ -21,15 +21,16 @@ https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google
 
 ## Example
 
-```bash
+```ruby
   lane :localize do
     google_sheet_localize(service_account_path: "./fastlane/google_drive_credentials.json",
                                       sheet_id: "sheet id",
                                       platform: "ios",
-                                          tabs: ["3TV"],
+                                          tabs: ["3TV"], #array of tab titles in google sheet
                              localization_path: "./Kit/TVKit",
-                               language_titles: ["de", "en"],
-                              default_language: "de")
+                               language_titles: ["de", "en"], #language titles in google sheet
+                              default_language: "de", #default language for google sheet
+                                 base_language: "en") #ios: Base.lproj android: values 
   end
 ```
 
