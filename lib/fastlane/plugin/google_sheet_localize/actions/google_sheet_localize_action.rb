@@ -238,6 +238,8 @@ module Fastlane
                   text = defaultLanguageText
                 end
 
+                text = text.gsub(/\\?'/, "\\\\'")
+
                 line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
 
                 f.write(line)
