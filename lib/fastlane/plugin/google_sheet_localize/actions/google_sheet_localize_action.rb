@@ -193,7 +193,7 @@ module Fastlane
         if platform == "android"
           languageDir = language['language']
 
-          if languageDir == "en"
+          if languageDir == base_language
             languageDir = "values"
           else
             languageDir = "values-#{languageDir}"
