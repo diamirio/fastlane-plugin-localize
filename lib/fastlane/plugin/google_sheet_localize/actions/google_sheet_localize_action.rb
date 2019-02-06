@@ -198,7 +198,7 @@ module Fastlane
 
             filteredItems = self.filterUnusedRows(language["items"],'identifierAndroid')
 
-            filteredItems.each { |item|
+            filteredItems.each_with_index { |item, index|
 
               comment = item['comment']
               identifier = item['identifierAndroid']
