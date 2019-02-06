@@ -15,6 +15,7 @@ module Fastlane
         path = params[:localization_path]
         language_titles = params[:language_titles]
         default_language = params[:default_language]
+        base_language = params[:base_language]
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
         worksheet = spreadsheet.worksheets.first
@@ -48,7 +49,7 @@ module Fastlane
             result.push(language)
           end
         end
-        self.createFiles(result, platform, path, default_language)
+        self.createFiles(result, platform, path, default_language, base_language)
       end
 
       def self.generateJSONObject(contentRows, index)
@@ -89,8 +90,8 @@ module Fastlane
         }
       end
 
-      def self.createFiles(languages, platform, destinationPath, defaultLanguage)
-          self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage)
+      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language)
+          self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
 
           if platform == "ios"
 
@@ -137,7 +138,7 @@ module Fastlane
           end
       end
 
-      def self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage)
+      def self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
 
         languages.each { |language|
 
@@ -146,8 +147,15 @@ module Fastlane
           filteredItems = self.filterUnusedRows(language["items"],'identifierIos')
 
           filename = "Localizable.strings"
-          filepath = "#{destinationPath}/#{language['language']}.lproj/#{filename}"
-          FileUtils.mkdir_p "#{destinationPath}/#{language['language']}.lproj"
+
+          languageName = language['language']
+
+          if languageName == base_language
+            languageName = "Base"
+          end
+
+          filepath = "#{destinationPath}/#{languageName}.lproj/#{filename}"
+          FileUtils.mkdir_p "#{destinationPath}/#{languageName}.lproj"
           File.open(filepath, "w") do |f|
             filteredItems.each_with_index { |item, index|
 
@@ -341,6 +349,11 @@ module Fastlane
                                   env_name: "DEFAULT_LANGUAGE",
                                description: "Default Language",
                                   optional: false,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :base_language,
+                                  env_name: "BASE_LANGUAGE",
+                               description: "Base language for Xcode projects",
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :localization_path,
                                   env_name: "LOCALIZATION_PATH",
