@@ -19,6 +19,10 @@ to use our plugin you have to duplicate this google sheet: https://docs.google.c
 Google Drive access token: 
 https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google-apis-18b2ba11a11a
 
+* The language_titles (the columns which should be exported)
+* The default_language (If a string is not present in a specific language, this is the fallback)
+* The base_language (The language which is placed in the base values folder)
+
 ## Example
 
 ```ruby
