@@ -240,7 +240,7 @@ module Fastlane
 
                 text = text.gsub(/\\?'/, "\\\\'")
 
-                if text.scan(/|/).length >= 2 && text.include?("\n")
+                if text.include?("one|")
 
                   text = text.gsub("\n", "|")
 
