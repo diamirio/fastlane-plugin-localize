@@ -156,7 +156,8 @@ module Fastlane
 
           filteredItems = self.filterUnusedRows(language["items"],'identifierIos')
 
-          filename = "Localizable.strings"
+          stringFileName = "Localizable.strings"
+          pluralsFileName = "Plurals.stringsdict"
 
           languageName = language['language']
 
@@ -164,9 +165,11 @@ module Fastlane
             languageName = "Base"
           end
 
-          filepath = "#{destinationPath}/#{languageName}.lproj/#{filename}"
+          stringFilepath = "#{destinationPath}/#{languageName}.lproj/#{filename}"
+          pluralsFilepath = "#{destinationPath}/#{languageName}.lproj/#{pluralsFileName}"
           FileUtils.mkdir_p "#{destinationPath}/#{languageName}.lproj"
-          File.open(filepath, "w") do |f|
+
+          File.open(stringFilepath, "w") do |f|
             filteredItems.each_with_index { |item, index|
 
               text = self.mapInvalidPlaceholder(item['text'])
@@ -178,6 +181,44 @@ module Fastlane
                 line = "\n\n#{identifier}\n"
               else
 
+                if !text.include?("one|")
+
+                  if text == "" || text == "TBD"
+                    default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
+                    default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
+
+                    defaultLanguageText = default_language_object[index]['text']
+                    puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
+                    text = self.mapInvalidPlaceholder(defaultLanguageText)
+                  end
+
+                  line = "\"#{identifier}\" = \"#{text}\";"
+                  if !comment.to_s.empty?
+                    line = line + " //#{comment}\n"
+                  else
+                    line = line + "\n"
+                  end
+                end
+              end
+              f.write(line)
+            }
+          end
+
+          File.open(pluralsFilepath, "w") do |f|
+
+            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<plist version=\"1.0\">\n<dict>")
+            f.write("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n")
+            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+            f.write("<plist version=\"1.0\">\n")
+            f.write("<dict>\n")
+
+            filteredItems.each_with_index { |item, index|
+
+              text = self.mapInvalidPlaceholder(item['text'])
+              identifier = item['identifierIos']
+
+              line = ""
+              if !identifier.include?('//') && text.include?("one|")
                 if text == "" || text == "TBD"
                   default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
                   default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
@@ -187,16 +228,32 @@ module Fastlane
                   text = self.mapInvalidPlaceholder(defaultLanguageText)
                 end
 
-                line = "\"#{identifier}\" = \"#{text}\";"
-              if !comment.to_s.empty?
-                 line = line + " //#{comment}\n"
-               else
-                 line = line + "\n"
-              end
-              end
+                text = text.gsub("\n", "|")
 
-              f.write(line)
+                f.write("\t\t<key>#{identifier}</key>\n")
+                f.write("\t\t<dict>\n")
+                f.write("\t\t\t<key>NSStringLocalizedFormatKey</key>\n")
+                f.write("\t\t\t<string>%#@#{identifier}@</string>\n")
+                f.write("\t\t\t<key>#{identifier}</key>\n")
+                f.write("\t\t\t<dict>\n")
+                f.write("\t\t\t\t<key>NSStringFormatSpecTypeKey</key>\n")
+                f.write("\t\t\t\t<string>NSStringPluralRuleType</string>\n")
+                f.write("\t\t\t\t<key>NSStringFormatValueTypeKey</key>\n")
+                f.write("\t\t\t\t<string>d</string>\n")
+
+                text.split("|").each_with_index { |word, wordIndex|
+                  if wordIndex % 2 == 0
+                    f.write("\t\t\t\t<key>#{word}</key>\n")
+                  else
+                    f.write("\t\t\t\t<string>#{word}</string>\n")
+                  end
+                }
+                f.write("\t\t\t</dict>\n")
+                f.write("\t\t</dict>\n")
+              end
             }
+            f.write("</dict>\n")
+            f.write("</plist>\n")
           end
         end
 
