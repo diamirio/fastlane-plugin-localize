@@ -165,7 +165,7 @@ module Fastlane
             languageName = "Base"
           end
 
-          stringFilepath = "#{destinationPath}/#{languageName}.lproj/#{filename}"
+          stringFilepath = "#{destinationPath}/#{languageName}.lproj/#{stringFileName}"
           pluralsFilepath = "#{destinationPath}/#{languageName}.lproj/#{pluralsFileName}"
           FileUtils.mkdir_p "#{destinationPath}/#{languageName}.lproj"
 
