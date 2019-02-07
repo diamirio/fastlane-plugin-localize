@@ -240,13 +240,15 @@ module Fastlane
 
                 text = text.gsub(/\\?'/, "\\\\'")
 
-                if text.include? "|"
+                if text.scan(/|/).length >= 2 && text.include?("\n")
+
+                  text = text.gsub("\n", "|")
 
                   line = line + "\t<plurals name=\"#{identifier}\">\n"
 
                   plural = ""
 
-                  text.dup.split("|").each_with_index { |word, wordIndex|
+                  text.split("|").each_with_index { |word, wordIndex|
                     if wordIndex % 2 == 0
                       plural = "\t\t<item quantity=\"#{word}\">"
                     else
