@@ -209,8 +209,7 @@ module Fastlane
             f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
             f.write("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n")
             f.write("<plist version=\"1.0\">\n")
-
-            line = ""
+            f.write("<dict>\n")
 
             filteredItems.each_with_index { |item, index|
 
@@ -229,34 +228,29 @@ module Fastlane
 
                 text = text.gsub("\n", "|")
 
-                line = line + "\t\t<key>#{identifier}</key>\n"
-                line = line + "\t\t<dict>\n"
-                line = line + "\t\t\t<key>NSStringLocalizedFormatKey</key>\n"
-                line = line + "\t\t\t<string>%#@#{identifier}@</string>\n"
-                line = line + "\t\t\t<key>#{identifier}</key>\n"
-                line = line + "\t\t\t<dict>\n"
-                line = line + "\t\t\t\t<key>NSStringFormatSpecTypeKey</key>\n"
-                line = line + "\t\t\t\t<string>NSStringPluralRuleType</string>\n"
-                line = line + "\t\t\t\t<key>NSStringFormatValueTypeKey</key>\n"
-                line = line + "\t\t\t\t<string>d</string>\n"
+                f.write("\t\t<key>#{identifier}</key>\n")
+                f.write("\t\t<dict>\n")
+                f.write("\t\t\t<key>NSStringLocalizedFormatKey</key>\n")
+                f.write("\t\t\t<string>%#@#{identifier}@</string>\n")
+                f.write("\t\t\t<key>#{identifier}</key>\n")
+                f.write("\t\t\t<dict>\n")
+                f.write("\t\t\t\t<key>NSStringFormatSpecTypeKey</key>\n")
+                f.write("\t\t\t\t<string>NSStringPluralRuleType</string>\n")
+                f.write("\t\t\t\t<key>NSStringFormatValueTypeKey</key>\n")
+                f.write("\t\t\t\t<string>d</string>\n")
 
                 text.split("|").each_with_index { |word, wordIndex|
                   if wordIndex % 2 == 0
-                    line = line + "\t\t\t\t<key>#{word}</key>\n"
+                    f.write("\t\t\t\t<key>#{word}</key>\n")
                   else
-                    line = line + "\t\t\t\t<string>#{word}</string>\n"
+                    f.write("\t\t\t\t<string>#{word}</string>\n")
                   end
                 }
-                line = line + "\t\t\t</dict>\n"
-                line = line + "\t\t</dict>\n"
+                f.write("\t\t\t</dict>\n")
+                f.write("\t\t</dict>\n")
               end
             }
-
-            if line.length > 0
-              f.write("<dict>\n")
-              f.write(line)
-              f.write("</dict>\n")
-            end
+            f.write("</dict>\n")
             f.write("</plist>\n")
           end
         end
