@@ -326,7 +326,7 @@ module Fastlane
       end
 
       def self.createiOSFileEndString()
-        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String(format: format, locale: Locale.current, arguments: args)\n\t}\n}"
+        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String.localizedStringWithFormat(format, args)\n\t}\n}"
       end
 
       def self.createiOSFunction(constantName, identifier, arguments, comment)
@@ -354,6 +354,11 @@ module Fastlane
       end
 
       def self.findArgumentsInText(text)
+
+        if text.include?("one|")
+          text = text.dup.split("|")[1]
+        end
+
         result = Array.new
         filtered = self.mapInvalidPlaceholder(text)
 
