@@ -104,7 +104,7 @@ module Fastlane
             }
 
             File.open(swiftFilepath, "w") do |f|
-              f.write("import Foundation\n\n// swiftlint:disable file_length\n// swiftlint:disable type_body_length\npublic struct Localization {\n")
+              f.write("import Foundation\n\n// swiftlint:disable all\npublic struct Localization {\n")
               filteredItems.each { |item|
 
                 identifier = item['identifierIos']
