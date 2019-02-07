@@ -206,9 +206,8 @@ module Fastlane
 
           File.open(pluralsFilepath, "w") do |f|
 
-            f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<plist version=\"1.0\">\n<dict>")
-            f.write("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n")
             f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
+            f.write("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n")
             f.write("<plist version=\"1.0\">\n")
 
             line = ""
