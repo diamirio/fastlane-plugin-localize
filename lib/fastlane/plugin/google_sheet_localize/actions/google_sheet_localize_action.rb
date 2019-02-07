@@ -240,7 +240,24 @@ module Fastlane
 
                 text = text.gsub(/\\?'/, "\\\\'")
 
-                line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
+                if text.include? "|"
+
+                  line = line + "\t<plurals name=\"#{identifier}\">\n"
+
+                  plural = ""
+
+                  text.dup.split("|").each_with_index { |word, wordIndex|
+                    if wordIndex % 2 == 0
+                      plural = plural + "<![CDATA[\"#{word}\"]]></item>\n"
+                      line = line + plural
+                    else
+                     plural = "\t\t<item quantity=\"#{word}\">"
+                    end
+                  }
+                  line = line + "\t</plurals>\n"
+                else
+                  line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
+                end
 
                 f.write(line)
               end
