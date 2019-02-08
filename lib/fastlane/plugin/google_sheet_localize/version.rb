@@ -1,5 +1,5 @@
 module Fastlane
   module GoogleSheetLocalize
-    VERSION = "0.1.99"
+    VERSION = "0.1.20"
   end
 end

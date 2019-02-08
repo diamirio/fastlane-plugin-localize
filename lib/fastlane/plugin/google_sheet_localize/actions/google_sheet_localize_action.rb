@@ -279,47 +279,45 @@ module Fastlane
               identifier = item['identifierAndroid']
               text = item['text']
 
-              if !identifier.to_s.empty?
-                line = ""
+              line = ""
 
-                if !comment.to_s.empty?
-                  line = line + "\t<!--#{comment}-->\n"
-                end
-
-                if text == "" || text == "TBD"
-                  default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
-                  default_language_object = self.filterUnusedRows(default_language_object,'identifierAndroid')
-
-                  defaultLanguageText = default_language_object[index]['text']
-                  puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
-                  text = defaultLanguageText
-                end
-
-                text = text.gsub(/\\?'/, "\\\\'")
-
-                if text.include?("one|")
-
-                  text = text.gsub("\n", "|")
-
-                  line = line + "\t<plurals name=\"#{identifier}\">\n"
-
-                  plural = ""
-
-                  text.split("|").each_with_index { |word, wordIndex|
-                    if wordIndex % 2 == 0
-                      plural = "\t\t<item quantity=\"#{word}\">"
-                    else
-                      plural = plural + "<![CDATA[\"#{word}\"]]></item>\n"
-                      line = line + plural
-                    end
-                  }
-                  line = line + "\t</plurals>\n"
-                else
-                  line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
-                end
-
-                f.write(line)
+              if !comment.to_s.empty?
+                line = line + "\t<!--#{comment}-->\n"
               end
+
+              if text == "" || text == "TBD"
+                default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
+                default_language_object = self.filterUnusedRows(default_language_object,'identifierAndroid')
+
+                defaultLanguageText = default_language_object[index]['text']
+                puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
+                text = defaultLanguageText
+              end
+
+              text = text.gsub(/\\?'/, "\\\\'")
+
+              if text.include?("one|")
+
+                text = text.gsub("\n", "|")
+
+                line = line + "\t<plurals name=\"#{identifier}\">\n"
+
+                plural = ""
+
+                text.split("|").each_with_index { |word, wordIndex|
+                  if wordIndex % 2 == 0
+                    plural = "\t\t<item quantity=\"#{word}\">"
+                  else
+                    plural = plural + "<![CDATA[\"#{word}\"]]></item>\n"
+                    line = line + plural
+                  end
+                }
+                line = line + "\t</plurals>\n"
+              else
+                line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
+              end
+
+              f.write(line)
             }
             f.write("</resources>\n")
           end
@@ -328,7 +326,7 @@ module Fastlane
       end
 
       def self.createiOSFileEndString()
-        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\tString(format: format, locale: .current, arguments: args)\n\t}\n}"
+        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String(format: format, locale: .current, arguments: args)\n\t}\n}"
       end
 
       def self.createiOSFunction(constantName, identifier, arguments, comment)
