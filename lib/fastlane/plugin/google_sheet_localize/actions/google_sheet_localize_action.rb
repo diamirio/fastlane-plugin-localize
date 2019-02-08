@@ -157,7 +157,7 @@ module Fastlane
           filteredItems = self.filterUnusedRows(language["items"],'identifierIos')
 
           stringFileName = "Localizable.strings"
-          pluralsFileName = "Plurals.stringsdict"
+          pluralsFileName = "Localizable.stringsdict"
 
           languageName = language['language']
 
