@@ -85,8 +85,8 @@ module Fastlane
 
       def self.filterUnusedRows(items, identifier)
         return items.select { |item|
-            iosIdentifier = item[identifier]
-            iosIdentifier != "NR" && iosIdentifier != ""
+            currentIdentifier = item[identifier]
+            currentIdentifier != "NR" && currentIdentifier != "" && currentIdentifier != "TBD"
         }
       end
 
@@ -100,7 +100,7 @@ module Fastlane
 
             filteredItems = languages[0]["items"].select { |item|
                 iosIdentifier = item['identifierIos']
-                iosIdentifier != "NR" && iosIdentifier != "" && !iosIdentifier.include?('//')
+                iosIdentifier != "NR" && iosIdentifier != "" && !iosIdentifier.include?('//') && iosIdentifier != "TBD"
             }
 
             File.open(swiftFilepath, "w") do |f|
@@ -279,7 +279,7 @@ module Fastlane
               identifier = item['identifierAndroid']
               text = item['text']
 
-              if !identifier.to_s.empty? && identifier != "NR"
+              if !identifier.to_s.empty?
                 line = ""
 
                 if !comment.to_s.empty?
@@ -328,7 +328,7 @@ module Fastlane
       end
 
       def self.createiOSFileEndString()
-        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\tif args.count == 1, let first = args.first {\n\t\t\treturn String.localizedStringWithFormat(format, first)\n\t\t}\n\t\treturn String.localizedStringWithFormat(format, args)\n\t}\n}"
+        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\tString(format: format, locale: .current, arguments: args)\n\t}\n}"
       end
 
       def self.createiOSFunction(constantName, identifier, arguments, comment)
