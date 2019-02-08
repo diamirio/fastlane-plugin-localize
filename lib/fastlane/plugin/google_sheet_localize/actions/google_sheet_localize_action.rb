@@ -228,11 +228,13 @@ module Fastlane
 
                 text = text.gsub("\n", "|")
 
+                formatIdentifier = identifier.gsub(".", "")
+
                 f.write("\t\t<key>#{identifier}</key>\n")
                 f.write("\t\t<dict>\n")
                 f.write("\t\t\t<key>NSStringLocalizedFormatKey</key>\n")
-                f.write("\t\t\t<string>%#@#{identifier}@</string>\n")
-                f.write("\t\t\t<key>#{identifier}</key>\n")
+                f.write("\t\t\t<string>%#@#{formatIdentifier}@</string>\n")
+                f.write("\t\t\t<key>#{formatIdentifier}</key>\n")
                 f.write("\t\t\t<dict>\n")
                 f.write("\t\t\t\t<key>NSStringFormatSpecTypeKey</key>\n")
                 f.write("\t\t\t\t<string>NSStringPluralRuleType</string>\n")
@@ -326,7 +328,7 @@ module Fastlane
       end
 
       def self.createiOSFileEndString()
-        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String.localizedStringWithFormat(format, args)\n\t}\n}"
+        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\nif args.count == 1, let first = args.first {\n\t\t\treturn String.localizedStringWithFormat(format, first)\n\t\treturn String.localizedStringWithFormat(format, args)\n\t}\n}"
       end
 
       def self.createiOSFunction(constantName, identifier, arguments, comment)
