@@ -328,7 +328,7 @@ module Fastlane
       end
 
       def self.createiOSFileEndString()
-        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\nif args.count == 1, let first = args.first {\n\t\t\treturn String.localizedStringWithFormat(format, first)\n\t\treturn String.localizedStringWithFormat(format, args)\n\t}\n}"
+        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\tif args.count == 1, let first = args.first {\n\t\t\treturn String.localizedStringWithFormat(format, first)\n\t\t}\n\t\treturn String.localizedStringWithFormat(format, args)\n\t}\n}"
       end
 
       def self.createiOSFunction(constantName, identifier, arguments, comment)
