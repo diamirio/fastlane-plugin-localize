@@ -183,7 +183,7 @@ module Fastlane
 
                 if !text.include?("one|")
 
-                  if text == "" || text == "TBD"
+                  if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                     default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
                     default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
 
@@ -217,7 +217,7 @@ module Fastlane
               identifier = item['identifierIos']
 
               if !identifier.include?('//') && text.include?("one|")
-                if text == "" || text == "TBD"
+                if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                   default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
                   default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
 
@@ -285,7 +285,7 @@ module Fastlane
                 line = line + "\t<!--#{comment}-->\n"
               end
 
-              if text == "" || text == "TBD"
+              if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                 default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
                 default_language_object = self.filterUnusedRows(default_language_object,'identifierAndroid')
 
@@ -441,7 +441,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :default_language,
                                   env_name: "DEFAULT_LANGUAGE",
                                description: "Default Language",
-                                  optional: false,
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :base_language,
                                   env_name: "BASE_LANGUAGE",
