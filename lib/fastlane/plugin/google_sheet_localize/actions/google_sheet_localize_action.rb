@@ -308,7 +308,7 @@ module Fastlane
                   if wordIndex % 2 == 0
                     plural = "\t\t<item quantity=\"#{word}\">"
                   else
-                    plural = plural + "<![CDATA[\"#{word}\"]]></item>\n"
+                    plural = plural + "<![CDATA[#{word}]]></item>\n"
                     line = line + plural
                   end
                 }
