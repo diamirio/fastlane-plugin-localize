@@ -16,6 +16,7 @@ module Fastlane
         language_titles = params[:language_titles]
         default_language = params[:default_language]
         base_language = params[:base_language]
+        code_generation_path = params[:code_generation_path]
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
         worksheet = spreadsheet.worksheets.first
@@ -49,7 +50,7 @@ module Fastlane
             result.push(language)
           end
         end
-        self.createFiles(result, platform, path, default_language, base_language)
+        self.createFiles(result, platform, path, default_language, base_language, code_generation_path)
       end
 
       def self.generateJSONObject(contentRows, index)
@@ -90,13 +91,20 @@ module Fastlane
         }
       end
 
-      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language)
+      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath)
           self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
 
           if platform == "ios"
 
             swiftFilename = "Localization.swift"
-            swiftFilepath = "#{destinationPath}/#{swiftFilename}"
+
+            swiftPath = codeGenerationPath
+
+            if codeGenerationPath.to_s.empty?
+              swiftPath = destinationPath
+            end
+
+            swiftFilepath = "#{swiftPath}/#{swiftFilename}"
 
             filteredItems = languages[0]["items"].select { |item|
                 iosIdentifier = item['identifierIos']
@@ -452,6 +460,11 @@ module Fastlane
                                   env_name: "LOCALIZATION_PATH",
                                description: "Output path",
                                   optional: false,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :code_generation_path,
+                                  env_name: "CODEGENERATIONPATH",
+                               description: "Code generation path for the Swift file",
+                                  optional: true,
                                       type: String)
         ]
       end
