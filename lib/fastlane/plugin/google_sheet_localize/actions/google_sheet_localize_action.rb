@@ -1,5 +1,6 @@
 require 'fastlane/action'
 require 'google_drive'
+require 'json'
 
 require_relative '../helper/google_sheet_localize_helper'
 
@@ -321,6 +322,15 @@ module Fastlane
                   end
                 }
                 line = line + "\t</plurals>\n"
+              elsif text.start_with?("[\"") && text.end_with?("\"]")
+
+                line = line + "\t<string-array name=\"#{identifier}\">\n"
+
+                JSON.parse(text).each { |arrayItem|
+                  line = line + "\t\t<item>#{arrayItem}</item>\n"
+                }
+
+                line = line + "\t</string-array>\n"
               else
                 line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
               end
@@ -432,7 +442,7 @@ module Fastlane
                                   env_name: "PLATFORM",
                                description: "Plaform, ios or android",
                                   optional: true,
-                             default_value: Actions.lane_context[Actions::SharedValues::PLATFORM_NAME],
+                             default_value: Actions.lane_context[Actions::SharedValues::PLATFORM_NAME].to_s,
                      default_value_dynamic: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :tabs,
