@@ -23,6 +23,15 @@ https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google
 * The default_language (If a string is not present in a specific language, this is the fallback)
 * The base_language (The language which is placed in the base values folder)
 
+## Sheet Language 
+
+#### Plurals: 
+one|%d artist  
+other|%d artists
+
+##### String Array: 
+["Monday", "Tuesday", "Wednesday"]
+
 ## Example
 
 ```ruby
