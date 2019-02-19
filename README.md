@@ -25,11 +25,11 @@ https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google
 
 ## Sheet Language 
 
-#### Plurals: 
+#### Plurals: (Android + iOS)
 one|%d artist  
 other|%d artists
 
-##### String Array: 
+##### String Array: (Android)
 ["Monday", "Tuesday", "Wednesday"]
 
 ## Example
