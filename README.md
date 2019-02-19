@@ -29,7 +29,7 @@ https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google
 one|%d artist  
 other|%d artists
 
-##### String Array: (Android)
+#### String Array: (Android)
 ["Monday", "Tuesday", "Wednesday"]
 
 ## Example
