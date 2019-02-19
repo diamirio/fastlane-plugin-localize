@@ -14,10 +14,9 @@ fastlane add_plugin google_sheet_localize
 
 Creates .strings files for iOS and strings.xml files for Android
 
-to use our plugin you have to duplicate this google sheet: https://docs.google.com/spreadsheets/d/1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc/edit?usp=sharing
+to use our plugin you have to duplicate this google sheet: [_Example_](https://docs.google.com/spreadsheets/d/1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc/edit?usp=sharing) 
 
-Google Drive access token: 
-https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google-apis-18b2ba11a11a
+Google Drive access token: [_Guide_] (https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google-apis-18b2ba11a11a)
 
 * The language_titles (the columns which should be exported)
 * The default_language (If a string is not present in a specific language, this is the fallback)
