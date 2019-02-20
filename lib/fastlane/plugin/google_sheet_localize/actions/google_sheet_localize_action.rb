@@ -18,6 +18,19 @@ module Fastlane
         default_language = params[:default_language]
         base_language = params[:base_language]
         code_generation_path = params[:code_generation_path]
+        identifier_name = params[:identifier_name]
+
+        if identifier_name.to_s.empty?
+          if platform == "ios"
+            identifier_name = "Identifier iOS"
+          end
+          if platform == "android"
+            identifier_name = "Identifier Android"
+          end
+          if platform == "web"
+            identifier_name = "Identifier Web"
+          end
+        end
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
         worksheet = spreadsheet.worksheets.first
@@ -44,8 +57,16 @@ module Fastlane
             end
 
             filterdWorksheets.each { |worksheet|
+              identifierIndex = 0
+
+              for index in 0..worksheet.max_cols
+                if worksheet.rows[0][index] == identifier_name
+                  identifierIndex = index
+                end
+              end
+
               contentRows = worksheet.rows.drop(1)
-              language['items'].concat(self.generateJSONObject(contentRows, i))
+              language['items'].concat(self.generateJSONObject(contentRows, i, identifierIndex))
             }
 
             result.push(language)
@@ -54,12 +75,12 @@ module Fastlane
         self.createFiles(result, platform, path, default_language, base_language, code_generation_path)
       end
 
-      def self.generateJSONObject(contentRows, index)
+      def self.generateJSONObject(contentRows, index, identifierIndex)
           result = Array.new
           for i in 0..contentRows.count - 1
-              item = self.generateSingleObject(contentRows[i], index)
+              item = self.generateSingleObject(contentRows[i], index, identifierIndex)
 
-              if item[:identifierIos] != "" && item[:identifierAndroid] != ""
+              if item[:identifier] != ""
                 result.push(item)
               end
           end
@@ -68,32 +89,73 @@ module Fastlane
 
       end
 
-      def self.generateSingleObject(row, column)
-        identifierIos = row[0]
-        identifierAndroid = row[1]
+      def self.generateSingleObject(row, column, identifierIndex)
+        identifier = row[identifierIndex]
 
         text = row[column]
         comment = row.last
 
-        object = { 'identifierIos' => identifierIos,
-                   'identifierAndroid' => identifierAndroid,
+        object = { 'identifier' => identifier,
                    'text' => text,
                    'comment' => comment
         }
-
         return object
 
       end
 
-      def self.filterUnusedRows(items, identifier)
-        return items.select { |item|
+      def self.filterUnusedRows(items, identifier, filterComment)
+        filtered = items.select { |item|
             currentIdentifier = item[identifier]
             currentIdentifier != "NR" && currentIdentifier != "" && currentIdentifier != "TBD"
+        }
+        
+        if filterComment == "false" 
+           return filtered
+        end
+
+        return filtered.select { |item|
+            !item[identifier].include?('//')
         }
       end
 
       def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath)
           self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
+
+          if platform == "web"
+            jsonFileName = "Localization.json"
+
+            jsonFilepath = "#{destinationPath}/#{jsonFileName}"
+
+            File.open(jsonFilepath, "w") do |f|
+
+              jsonItem = {}
+
+              languages.each { |language|
+                filteredItems = self.filterUnusedRows(language["items"],'identifier', "true")
+
+                allKeys = {}
+
+                filteredItems.each { |item|
+                  identifier = item['identifier']
+
+                  text = item['text']
+
+                  matches = text.scan(/%[0-9][sdf]/)
+                  matches.each { |match|
+                    text = text.gsub(match, "{#{match[1]}}")
+                  }
+
+                  if !identifier.include?('//')
+                    allKeys[identifier] = text
+                  end
+                }
+                jsonItem[language["language"]] = allKeys
+              }
+
+              jsonString = JSON.pretty_generate(jsonItem)
+              f.write(jsonString)
+            end
+          end
 
           if platform == "ios"
 
@@ -105,18 +167,15 @@ module Fastlane
               swiftPath = destinationPath
             end
 
-            swiftFilepath = "#{swiftPath}/#{swiftFilename}"
+            filteredItems = self.filterUnusedRows(languages[0]["items"],'identifier', "true")
 
-            filteredItems = languages[0]["items"].select { |item|
-                iosIdentifier = item['identifierIos']
-                iosIdentifier != "NR" && iosIdentifier != "" && !iosIdentifier.include?('//') && iosIdentifier != "TBD"
-            }
+            swiftFilepath = "#{swiftPath}/#{swiftFilename}"
 
             File.open(swiftFilepath, "w") do |f|
               f.write("import Foundation\n\n// swiftlint:disable all\npublic struct Localization {\n")
               filteredItems.each { |item|
 
-                identifier = item['identifierIos']
+                identifier = item['identifier']
 
                 values = identifier.dup.split(".")
 
@@ -163,7 +222,7 @@ module Fastlane
 
         if platform == "ios"
 
-          filteredItems = self.filterUnusedRows(language["items"],'identifierIos')
+          filteredItems = self.filterUnusedRows(language["items"],'identifier', "false")
 
           stringFileName = "Localizable.strings"
           pluralsFileName = "Localizable.stringsdict"
@@ -183,7 +242,7 @@ module Fastlane
 
               text = self.mapInvalidPlaceholder(item['text'])
               comment = item['comment']
-              identifier = item['identifierIos']
+              identifier = item['identifier']
 
               line = ""
               if identifier.include?('//')
@@ -194,12 +253,18 @@ module Fastlane
 
                   if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                     default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
-                    default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
+                    default_language_object = self.filterUnusedRows(default_language_object,'identifier', "false")
 
                     defaultLanguageText = default_language_object[index]['text']
                     puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
                     text = self.mapInvalidPlaceholder(defaultLanguageText)
                   end
+
+                  matches = text.scan(/%[0-9][sdf]/)
+
+                  matches.each { |match|
+                    text = text.gsub(match, "%#{match[1]}$#{match[2].gsub("s","@")}")
+                  }
 
                   line = "\"#{identifier}\" = \"#{text}\";"
                   if !comment.to_s.empty?
@@ -223,12 +288,12 @@ module Fastlane
             filteredItems.each_with_index { |item, index|
 
               text = self.mapInvalidPlaceholder(item['text'])
-              identifier = item['identifierIos']
+              identifier = item['identifier']
 
               if !identifier.include?('//') && text.include?("one|")
                 if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                   default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
-                  default_language_object = self.filterUnusedRows(default_language_object,'identifierIos')
+                  default_language_object = self.filterUnusedRows(default_language_object,'identifier', "false")
 
                   defaultLanguageText = default_language_object[index]['text']
                   puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
@@ -280,12 +345,12 @@ module Fastlane
             f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
             f.write("<resources>\n")
 
-            filteredItems = self.filterUnusedRows(language["items"],'identifierAndroid')
+            filteredItems = self.filterUnusedRows(language["items"],'identifier', "false")
 
             filteredItems.each_with_index { |item, index|
 
               comment = item['comment']
-              identifier = item['identifierAndroid']
+              identifier = item['identifier']
               text = item['text']
 
               line = ""
@@ -296,7 +361,7 @@ module Fastlane
 
               if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                 default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
-                default_language_object = self.filterUnusedRows(default_language_object,'identifierAndroid')
+                default_language_object = self.filterUnusedRows(default_language_object,'identifier', "false")
 
                 defaultLanguageText = default_language_object[index]['text']
                 puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
@@ -380,10 +445,10 @@ module Fastlane
         result = Array.new
         filtered = self.mapInvalidPlaceholder(text)
 
-        stringIndexes = (0 ... filtered.length).find_all { |i| filtered[i,2] == '%@' }
-        intIndexes = (0 ... filtered.length).find_all { |i| filtered[i,2] == '%d' }
-        floatIndexes = (0 ... filtered.length).find_all { |i| filtered[i,2] == '%f' }
-        doubleIndexes = (0 ... filtered.length).find_all { |i| filtered[i,3] == '%ld' }
+        stringIndexes = filtered.scan(/%[0-9]?[s@]/)
+        intIndexes = filtered.scan(/%[0-9]?[d]/)
+        floatIndexes = filtered.scan(/%[0-9]?[f]/)
+        doubleIndexes = filtered.scan(/%[0-9]?[ld]/)
 
         if stringIndexes.count > 0
           result = result.concat(stringIndexes.map { |e| { "index": e, "type": "String" }})
@@ -440,7 +505,7 @@ module Fastlane
                                        type: String),
           FastlaneCore::ConfigItem.new(key: :platform,
                                   env_name: "PLATFORM",
-                               description: "Plaform, ios or android",
+                               description: "Platform, ios or android",
                                   optional: true,
                              default_value: Actions.lane_context[Actions::SharedValues::PLATFORM_NAME].to_s,
                      default_value_dynamic: true,
@@ -470,6 +535,11 @@ module Fastlane
                                   env_name: "LOCALIZATION_PATH",
                                description: "Output path",
                                   optional: false,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :identifier_name,
+                                  env_name: "IDENTIFIER_NAME",
+                               description: "Identifier for Platform",
+                                  optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :code_generation_path,
                                   env_name: "CODEGENERATIONPATH",

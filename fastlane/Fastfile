@@ -17,3 +17,12 @@ platform :android do
                             default_language: "de")
    end
 end
+
+lane :test do
+  google_sheet_localize(service_account_path: "./test-results/google_drive_credentials.json",
+                                    sheet_id: "1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc",
+                           localization_path: "./test-results",
+                                    platform: "web",
+                             language_titles: ["de", "en"],
+                            default_language: "de")
+ end
