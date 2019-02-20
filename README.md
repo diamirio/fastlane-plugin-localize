@@ -24,6 +24,16 @@ Google Drive access token: [_Guide_](https://medium.com/@osanda.deshan/getting-g
 
 ## Sheet Language 
 
+#### Arguments: (Android + iOS + Web)  
+English: `Mario ate a %2s %1s`.   
+German: `Mario hat %1s einen %2s gegessen`.   
+  
+In this case `%2s` stands for __Apple__ and `%1s` for __Today__, the order is different in this example, so we need to take care of it.  
+
+Mapped iOS: `Mario ate a %2$@ %1$@`.   
+Mapped Android: `Mario ate a %2s %1s`.   
+Mapped Web: `Mario ate a {2} {1}`.   
+
 #### Plurals: (Android + iOS)
 one|%d artist  
 other|%d artists
