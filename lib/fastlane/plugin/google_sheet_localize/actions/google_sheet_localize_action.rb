@@ -33,46 +33,54 @@ module Fastlane
         end
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
-        worksheet = spreadsheet.worksheets.first
+
+        filterdWorksheets = []
+
+        if tabs.count == 0
+          filterdWorksheets = spreadsheet.worksheets
+        else
+          filterdWorksheets = spreadsheet.worksheets.select { |item| tabs.include?(item.title) }
+        end
 
         result = []
+        
+        filterdWorksheets.each { |worksheet|
 
-        for i in 0..worksheet.max_cols
+          identifierIndex = 0
 
-          title = worksheet.rows[0][i]
-
-          if language_titles.include?(title)
-
-            language = {
-              'language' => title,
-              'items' => []
-            }
-
-            filterdWorksheets = []
-
-            if tabs.count == 0
-              filterdWorksheets = spreadsheet.worksheets
-            else
-              filterdWorksheets = spreadsheet.worksheets.select { |item| tabs.include?(item.title) }
+          for i in 0..worksheet.max_cols
+            if worksheet.rows[0][i] == identifier_name
+              identifierIndex = i
             end
+          end
 
-            filterdWorksheets.each { |worksheet|
-              identifierIndex = 0
+          for i in 0..worksheet.max_cols
 
-              for index in 0..worksheet.max_cols
-                if worksheet.rows[0][index] == identifier_name
-                  identifierIndex = index
-                end
+            title = worksheet.rows[0][i]
+
+            if language_titles.include?(title)
+
+              language = result.select { |item| item['language'] == title }.first
+
+              if language.nil?
+                language = {
+                  'language' => title,
+                  'items' => []
+                }
               end
 
               contentRows = worksheet.rows.drop(1)
-              language['items'].concat(self.generateJSONObject(contentRows, i, identifierIndex))
-            }
 
-            result.push(language)
+              items = language['items']
+              items = items + self.generateJSONObject(contentRows, i, identifierIndex)
+
+              language['items'] = items
+
+              result.push(language)
+            end
           end
-        end
-        self.createFiles(result, platform, path, default_language, base_language, code_generation_path)
+      }
+      self.createFiles(result, platform, path, default_language, base_language, code_generation_path)
       end
 
       def self.generateJSONObject(contentRows, index, identifierIndex)
