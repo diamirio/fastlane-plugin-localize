@@ -456,7 +456,7 @@ module Fastlane
         stringIndexes = filtered.scan(/%[0-9]?[s@]/)
         intIndexes = filtered.scan(/%[0-9]?[d]/)
         floatIndexes = filtered.scan(/%[0-9]?[f]/)
-        doubleIndexes = filtered.scan(/%[0-9]?[ld]/)
+        doubleIndexes = filtered.scan(/%[0-9]?ld/)
 
         if stringIndexes.count > 0
           result = result.concat(stringIndexes.map { |e| { "index": e, "type": "String" }})
