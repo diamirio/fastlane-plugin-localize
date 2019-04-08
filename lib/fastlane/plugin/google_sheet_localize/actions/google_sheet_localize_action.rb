@@ -19,6 +19,7 @@ module Fastlane
         base_language = params[:base_language]
         code_generation_path = params[:code_generation_path]
         identifier_name = params[:identifier_name]
+        comment_example_language = params[:comment_example_language]
 
         if identifier_name.to_s.empty?
           if platform == "ios"
@@ -30,6 +31,10 @@ module Fastlane
           if platform == "web"
             identifier_name = "Identifier Web"
           end
+        end
+
+        if comment_example_language.to_s.empty?
+          comment_example_language = default_language
         end
 
         spreadsheet = session.spreadsheet_by_url(spreadsheet_id)
@@ -80,7 +85,7 @@ module Fastlane
             end
           end
       }
-      self.createFiles(result, platform, path, default_language, base_language, code_generation_path)
+      self.createFiles(result, platform, path, default_language, base_language, code_generation_path, comment_example_language)
       end
 
       def self.generateJSONObject(contentRows, index, identifierIndex)
@@ -126,7 +131,7 @@ module Fastlane
         }
       end
 
-      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath)
+      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath, comment_example_language)
           self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
 
           if platform == "web"
@@ -175,7 +180,9 @@ module Fastlane
               swiftPath = destinationPath
             end
 
-            filteredItems = self.filterUnusedRows(languages[0]["items"],'identifier', "true")
+            languageItems = languages.select { |item| item["language"] == comment_example_language }.first
+
+            filteredItems = self.filterUnusedRows(languageItems["items"],'identifier', "true")
 
             swiftFilepath = "#{swiftPath}/#{swiftFilename}"
 
@@ -212,16 +219,45 @@ module Fastlane
                 arguments = self.findArgumentsInText(text)
 
                 if arguments.count == 0
-                  f.write("\n\t///Sheet comment: #{item['comment']}\n\tpublic static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
+                  f.write(self.createComment(item['comment'], item['text']))
+                  f.write("public static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
                 else
-                  f.write(self.createiOSFunction(constantName, identifier, arguments, item['comment']))
+                  f.write(self.createComment(item['comment'], item['text']))
+                  f.write(self.createiOSFunction(constantName, identifier, arguments))
                 end
               }
               f.write("\n}")
-              f.write(self.createiOSFileEndString())
+              f.write(self.createiOSFileEndString(destinationPath))
             end
 
           end
+      end
+
+      def self.createComment(comment, example) 
+
+        if comment.to_s.empty?
+          return %Q(
+    /**
+    - Example:
+    ````
+    #{example}
+    ````
+    */
+    )
+        end
+
+      return %Q(
+    /**
+    - Sheet comment:
+    ````
+    #{comment}
+    ````
+    - Example:
+    ````
+    #{example}
+    ````
+    */
+    )
       end
 
       def self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
@@ -382,30 +418,30 @@ module Fastlane
 
                 text = text.gsub("\n", "|")
 
-                line = line + "\t<plurals name=\"#{identifier}\">\n"
+                line = line + "    <plurals name=\"#{identifier}\">\n"
 
                 plural = ""
 
                 text.split("|").each_with_index { |word, wordIndex|
                   if wordIndex % 2 == 0
-                    plural = "\t\t<item quantity=\"#{word}\">"
+                    plural = "        <item quantity=\"#{word}\">"
                   else
                     plural = plural + "<![CDATA[#{word}]]></item>\n"
                     line = line + plural
                   end
                 }
-                line = line + "\t</plurals>\n"
+                line = line + "    </plurals>\n"
               elsif text.start_with?("[\"") && text.end_with?("\"]")
 
-                line = line + "\t<string-array name=\"#{identifier}\">\n"
+                line = line + "    <string-array name=\"#{identifier}\">\n"
 
                 JSON.parse(text).each { |arrayItem|
-                  line = line + "\t\t<item><![CDATA[#{arrayItem}]]></item>\n"
+                  line = line + "        <item><![CDATA[#{arrayItem}]]></item>\n"
                 }
 
-                line = line + "\t</string-array>\n"
+                line = line + "    </string-array>\n"
               else
-                line = line + "\t<string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
+                line = line + "    <string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
               end
 
               f.write(line)
@@ -416,12 +452,32 @@ module Fastlane
         }
       end
 
-      def self.createiOSFileEndString()
-        return "\n\nprivate class LocalizationHelper { }\n\nextension Localization {\n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {\n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: Bundle(for: LocalizationHelper.self), comment: \"\")\n\n\t\tguard !args.isEmpty else { return format }\n\n\t\treturn String(format: format, locale: .current, arguments: args)\n\t}\n}"
+      def self.createiOSFileEndString(destinationPath)
+
+        bundle = "let bundle = Bundle(for: LocalizationHelper.self)"
+
+        puts destinationPath
+
+        if destinationPath.include?(".bundle")
+
+          bundle = %Q(let bundleUrl = Bundle(for: LocalizationHelper.self).url(forResource: "#{destinationPath.split('/').last.gsub(".bundle", "")}", withExtension: "bundle")
+        \n\t\tlet bundle = Bundle(url: bundleUrl!))
+        end
+
+        return %Q(
+        \n\nprivate class LocalizationHelper { }
+        \n\nextension Localization {
+        \n\tprivate static func localized(identifier key: String, _ args: CVarArg...) -> String {
+        \n\t\t#{bundle}
+        \n\t\tlet format = NSLocalizedString(key, tableName: nil, bundle: bundle, comment: \"\")
+        \n\t\tguard !args.isEmpty else { return format }
+        \n\t\treturn String(format: format, locale: .current, arguments: args)
+        \n\t}
+        \n})
       end
 
-      def self.createiOSFunction(constantName, identifier, arguments, comment)
-          functionTitle = "\n\t///Sheet comment: #{comment}\n\tpublic static func #{constantName}("
+      def self.createiOSFunction(constantName, identifier, arguments)
+          functionTitle = "public static func #{constantName}("
 
           arguments.each_with_index do |item, index|
             functionTitle = functionTitle + "_ arg#{index}: #{item[:type]}"
@@ -532,6 +588,11 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :default_language,
                                   env_name: "DEFAULT_LANGUAGE",
                                description: "Default Language",
+                                  optional: true,
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :comment_example_language,
+                                  env_name: "COMMENT_EXAMPLE_LANGUAGE",
+                               description: "Comment Example Language",
                                   optional: true,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :base_language,
