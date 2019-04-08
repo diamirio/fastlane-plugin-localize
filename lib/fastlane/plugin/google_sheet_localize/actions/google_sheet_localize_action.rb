@@ -461,7 +461,7 @@ module Fastlane
         if destinationPath.include?(".bundle")
 
           bundle = %Q(let bundleUrl = Bundle(for: LocalizationHelper.self).url(forResource: "#{destinationPath.split('/').last.gsub(".bundle", "")}", withExtension: "bundle")
-        \n\t\tlet bundle = Bundle(url: bundleUrl!))
+        \n\t\tlet bundle = Bundle(url: bundleUrl!)!)
         end
 
         return %Q(
