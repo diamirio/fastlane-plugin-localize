@@ -400,7 +400,7 @@ module Fastlane
               line = ""
 
               if !comment.to_s.empty?
-                line = line + "\t<!--#{comment}-->\n"
+                line = line + "    <!--#{comment}-->\n"
               end
 
               if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
