@@ -436,6 +436,9 @@ module Fastlane
                 line = line + "    <string-array name=\"#{identifier}\">\n"
 
                 JSON.parse(text).each { |arrayItem|
+
+                  arrayItem = arrayItem.gsub("'", "\\\\'")
+
                   line = line + "        <item><![CDATA[#{arrayItem}]]></item>\n"
                 }
 
