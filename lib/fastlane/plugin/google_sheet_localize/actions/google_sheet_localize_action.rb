@@ -192,7 +192,7 @@ module Fastlane
 
                 identifier = item['identifier']
 
-                values = identifier.dup.split(".")
+                values = identifier.dup.split(/\.|_/)
 
                 constantName = ""
 
@@ -238,23 +238,18 @@ module Fastlane
         if comment.to_s.empty?
           return %Q(
     /**
-    - Example:
-    ````
     #{example}
-    ````
     */
     )
         end
 
       return %Q(
     /**
+    #{example}
+    
     - Sheet comment:
     ````
     #{comment}
-    ````
-    - Example:
-    ````
-    #{example}
     ````
     */
     )
