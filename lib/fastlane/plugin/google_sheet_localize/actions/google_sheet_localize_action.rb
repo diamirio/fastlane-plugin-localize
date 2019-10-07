@@ -288,7 +288,6 @@ module Fastlane
                 line = "\n\n#{identifier}\n"
               else
 
-                if !text.include?("one|")
 
                   if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                     default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
@@ -298,6 +297,8 @@ module Fastlane
                     puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
                     text = self.mapInvalidPlaceholder(defaultLanguageText)
                   end
+
+                  if !text.include?("one|")
 
                   matches = text.scan(/%[0-9][sdf]/)
 
@@ -329,7 +330,6 @@ module Fastlane
               text = self.mapInvalidPlaceholder(item['text'])
               identifier = item['identifier']
 
-              if !identifier.include?('//') && text.include?("one|")
                 if (text == "" || text == "TBD") && !defaultLanguage.to_s.empty?
                   default_language_object = languages.select { |languageItem| languageItem['language'] == defaultLanguage }.first["items"]
                   default_language_object = self.filterUnusedRows(default_language_object,'identifier', "false")
@@ -338,6 +338,8 @@ module Fastlane
                   puts "found empty text for:\n\tidentifier: #{identifier}\n\tlanguage:#{language['language']}\n\treplacing it with: #{defaultLanguageText}"
                   text = self.mapInvalidPlaceholder(defaultLanguageText)
                 end
+
+                if !identifier.include?('//') && text.include?("one|")
 
                 text = text.gsub("\n", "|")
 
