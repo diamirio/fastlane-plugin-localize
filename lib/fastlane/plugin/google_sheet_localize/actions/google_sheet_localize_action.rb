@@ -187,7 +187,7 @@ module Fastlane
             swiftFilepath = "#{swiftPath}/#{swiftFilename}"
 
             File.open(swiftFilepath, "w") do |f|
-              f.write("import Foundation\n\n// swiftlint:disable all\npublic struct Localization {\n")
+              f.write("import Foundation\n\n// swiftlint:disable all\npublic class Localization: NSObject {\n")
               filteredItems.each { |item|
 
                 identifier = item['identifier']
@@ -220,7 +220,7 @@ module Fastlane
 
                 if arguments.count == 0
                   f.write(self.createComment(item['comment'], item['text']))
-                  f.write("public static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
+                  f.write("@objc public static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
                 else
                   f.write(self.createComment(item['comment'], item['text']))
                   f.write(self.createiOSFunction(constantName, identifier, arguments))
@@ -477,7 +477,7 @@ module Fastlane
       end
 
       def self.createiOSFunction(constantName, identifier, arguments)
-          functionTitle = "public static func #{constantName}("
+          functionTitle = "@objc public static func #{constantName}("
 
           arguments.each_with_index do |item, index|
             functionTitle = functionTitle + "_ arg#{index}: #{item[:type]}"
