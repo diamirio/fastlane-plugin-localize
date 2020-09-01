@@ -20,6 +20,7 @@ module Fastlane
         code_generation_path = params[:code_generation_path]
         identifier_name = params[:identifier_name]
         comment_example_language = params[:comment_example_language]
+        support_objc = params[:support_objc]
 
         if identifier_name.to_s.empty?
           if platform == "ios"
@@ -85,7 +86,7 @@ module Fastlane
             end
           end
       }
-      self.createFiles(result, platform, path, default_language, base_language, code_generation_path, comment_example_language)
+      self.createFiles(result, platform, path, default_language, base_language, code_generation_path, comment_example_language, support_objc)
       end
 
       def self.generateJSONObject(contentRows, index, identifierIndex)
@@ -131,7 +132,7 @@ module Fastlane
         }
       end
 
-      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath, comment_example_language)
+      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath, comment_example_language, support_objc)
           self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
 
           if platform == "web"
@@ -187,7 +188,7 @@ module Fastlane
             swiftFilepath = "#{swiftPath}/#{swiftFilename}"
 
             File.open(swiftFilepath, "w") do |f|
-              f.write("import Foundation\n\n// swiftlint:disable all\npublic class Localization: NSObject {\n")
+              f.write("import Foundation\n\n// swiftlint:disable all\n#{getiOSTypeDefinition(support_objc)} {\n")
               filteredItems.each { |item|
 
                 identifier = item['identifier']
@@ -220,10 +221,10 @@ module Fastlane
 
                 if arguments.count == 0
                   f.write(self.createComment(item['comment'], item['text']))
-                  f.write("@objc public static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
+                  f.write("#{getiOSAttributes(support_objc)}public static let #{constantName} = localized(identifier: \"#{identifier}\")\n")
                 else
                   f.write(self.createComment(item['comment'], item['text']))
-                  f.write(self.createiOSFunction(constantName, identifier, arguments))
+                  f.write(self.createiOSFunction(constantName, identifier, arguments, support_objc))
                 end
               }
               f.write("\n}")
@@ -476,8 +477,8 @@ module Fastlane
         \n})
       end
 
-      def self.createiOSFunction(constantName, identifier, arguments)
-          functionTitle = "@objc public static func #{constantName}("
+      def self.createiOSFunction(constantName, identifier, arguments, support_objc)
+          functionTitle = "#{getiOSAttributes(support_objc)}public static func #{constantName}("
 
           arguments.each_with_index do |item, index|
             functionTitle = functionTitle + "_ arg#{index}: #{item[:type]}"
@@ -498,6 +499,14 @@ module Fastlane
           end
 
           return functionTitle
+      end
+
+      def self.getiOSTypeDefinition(support_objc)
+        return support_objc ? "public class Localization: NSObject" : "public struct Localization"
+      end
+
+      def self.getiOSAttributes(support_objc)
+        return support_objc ? "@objc " : ""
       end
 
       def self.findArgumentsInText(text)
@@ -614,7 +623,12 @@ module Fastlane
                                   env_name: "CODEGENERATIONPATH",
                                description: "Code generation path for the Swift file",
                                   optional: true,
-                                      type: String)
+                                      type: String),
+          FastlaneCore::ConfigItem.new(key: :support_objc,
+                                  env_name: "OBJC_SUPPORT",
+                               description: "Whether the generated code should support Obj-C. Only relevant for the ios platform",
+                                      type: Boolean,
+                             default_value: false)
         ]
       end
 
