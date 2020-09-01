@@ -41,6 +41,11 @@ other|%d artists
 #### String Array: (Android)
 ["Monday", "Tuesday", "Wednesday"]
 
+## iOS specifics
+
+In order to support Objective-C, the plugin provides the `support_objc` argument, which is default `false`.  
+Therefore, if you need Objective-C support pass `support_objc: true`.
+
 ## Example
 
 ```ruby
