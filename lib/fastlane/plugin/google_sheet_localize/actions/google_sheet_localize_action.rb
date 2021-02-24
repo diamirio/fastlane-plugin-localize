@@ -21,6 +21,7 @@ module Fastlane
         identifier_name = params[:identifier_name]
         comment_example_language = params[:comment_example_language]
         support_objc = params[:support_objc]
+        support_spm = params[:support_spm]
 
         if identifier_name.to_s.empty?
           if platform == "ios"
@@ -86,7 +87,7 @@ module Fastlane
             end
           end
       }
-      self.createFiles(result, platform, path, default_language, base_language, code_generation_path, comment_example_language, support_objc)
+      self.createFiles(result, platform, path, default_language, base_language, code_generation_path, comment_example_language, support_objc, support_spm)
       end
 
       def self.generateJSONObject(contentRows, index, identifierIndex)
@@ -132,7 +133,7 @@ module Fastlane
         }
       end
 
-      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath, comment_example_language, support_objc)
+      def self.createFiles(languages, platform, destinationPath, defaultLanguage, base_language, codeGenerationPath, comment_example_language, support_objc, support_spm)
           self.createFilesForLanguages(languages, platform, destinationPath, defaultLanguage, base_language)
 
           if platform == "web"
@@ -228,7 +229,7 @@ module Fastlane
                 end
               }
               f.write("\n}")
-              f.write(self.createiOSFileEndString(destinationPath))
+              f.write(self.createiOSFileEndString(destinationPath, support_spm))
             end
 
           end
@@ -453,9 +454,9 @@ module Fastlane
         }
       end
 
-      def self.createiOSFileEndString(destinationPath)
+      def self.createiOSFileEndString(destinationPath, support_spm)
 
-        bundle = "let bundle = Bundle(for: LocalizationHelper.self)"
+        bundle = support_spm ? "let bundle = Bundle.module" : "let bundle = Bundle(for: LocalizationHelper.self)"
 
         puts destinationPath
 
@@ -589,6 +590,11 @@ module Fastlane
                                default_value: [],
                                   optional: true,
                                       type: Array),
+          FastlaneCore::ConfigItem.new(key: :support_spm,
+                                  env_name: "SUPPORT_SPM",
+                               description: "Is Swift Package",
+                             default_value: false,
+                                      type: Boolean),
           FastlaneCore::ConfigItem.new(key: :language_titles,
                                   env_name: "LANGUAGE_TITLES",
                                description: "Alle language titles",
