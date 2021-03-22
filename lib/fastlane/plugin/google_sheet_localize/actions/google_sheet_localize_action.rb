@@ -519,28 +519,38 @@ module Fastlane
         result = Array.new
         filtered = self.mapInvalidPlaceholder(text)
 
-        stringIndexes = filtered.scan(/%[0-9]?[s@]/)
-        intIndexes = filtered.scan(/%[0-9]?[d]/)
-        floatIndexes = filtered.scan(/%[0-9]?[f]/)
-        doubleIndexes = filtered.scan(/%[0-9]?ld/)
+        stringIndexes = self.scan_str(filtered, /%[0-9]?[s@]/)
+        intIndexes = self.scan_str(filtered, /%[0-9]?[d]/)
+        floatIndexes = self.scan_str(filtered, /%[0-9]?[f]/)
+        doubleIndexes = self.scan_str(filtered, /%[0-9]?ld/)
 
         if stringIndexes.count > 0
-          result = result.concat(stringIndexes.map { |e| { "index": e, "type": "String" }})
+          result = result.concat(stringIndexes.map { |e| { "index": e[0], "offset": e[1], "type": "String" }})
         end
 
         if intIndexes.count > 0
-          result = result.concat(intIndexes.map { |e| { "index": e, "type": "Int" }})
+          result = result.concat(intIndexes.map { |e| { "index": e[0], "offset": e[1], "type": "Int" }})
         end
 
         if floatIndexes.count > 0
-          result = result.concat(floatIndexes.map { |e| { "index": e, "type": "Float" }})
+          result = result.concat(floatIndexes.map { |e| { "index": e[0], "offset": e[1], "type": "Float" }})
         end
 
         if doubleIndexes.count > 0
-          result = result.concat(doubleIndexes.map { |e| { "index": e, "type": "Double" }})
+          result = result.concat(doubleIndexes.map { |e| { "index": e[0], "offset": e[1], "type": "Double" }})
         end
 
+        result = result.sort_by! { |k| k["offset"] }.reverse!
+
         return result
+      end
+
+      def self.scan_str(str, pattern)
+        res = []
+        (0..str.length).each do |i|
+          res << [Regexp.last_match.to_s, i] if str[i..-1] =~ /^#{pattern}/
+        end
+        res
       end
 
       def self.mapInvalidPlaceholder(text)
