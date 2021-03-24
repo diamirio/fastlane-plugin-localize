@@ -1,0 +1,36 @@
+{
+  "de": {
+    "example.example.test": "Mario hat {1} eine {2} gegessen",
+    "hallo.test": "Mario hat {1} eine {2} gegessen",
+    "ios.test01": "Test01",
+    "ios.test02": "Bitte drücken Sie \"Fortsetzen\"",
+    "ios.test03": "Hallo",
+    "continue": "Continue test",
+    "switch": "Switch test",
+    "ios.test04": "Los geht's",
+    "viewController.purchaseButton.title": "upcase, downcase test ",
+    "simulation.time.hour": "one|%d Stunde\nother|%d Stunden",
+    "simulation.time.hour1": "one|%d Stunde\nother|%d Stunden",
+    "ios.test05": "Es ist ein %s",
+    "ios.test06": "Links oder Rechts doppelklicken, um %d Sekunden zu überspringen",
+    "i_am_a_test": "snake_case",
+    "template2.example.example.test": "Mario hat {1} eine {2} gegessen"
+  },
+  "en": {
+    "example.example.test": "Mario ate a {2} {1}",
+    "hallo.test": "Mario ate a {2} {1}",
+    "ios.test01": "TBD",
+    "ios.test02": "Please press \"Continue\"",
+    "ios.test03": "",
+    "continue": "Continue test",
+    "switch": "Switch test",
+    "ios.test04": "Los geht's",
+    "viewController.purchaseButton.title": "upcase, downcase test ",
+    "simulation.time.hour": "one|%d Hour\nother|%d Hours",
+    "simulation.time.hour1": "",
+    "ios.test05": "It is a %s",
+    "ios.test06": "Double-click left or right to skip %d seconds.",
+    "i_am_a_test": "",
+    "template2.example.example.test": "Mario ate a {2} {1}"
+  }
+}

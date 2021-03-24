@@ -1,0 +1,21 @@
+
+
+//You can use headers to group 
+"markus3.test" = "%.2f GB"; //Markus Test 3
+"murkus2.test" = "%@\n\nFehlercode: %d"; //Markus 2 test
+"markus.test" = "of %d %@ used"; //Markus test
+"example.example.test" = "Mario ate a %2$@ %1$@"; //beispiel beispiel
+"hallo.test" = "Mario ate a %2$d %1$d";
+
+
+//different group
+"ios.test01" = "Test01"; //Test01 is used because de is the default language
+"ios.test02" = "Please press \"Continue\"";
+"ios.test03" = "Hallo"; //Hallo is used because de is the default language
+"continue" = "Continue test"; //Continue is supported as a Variable name 
+"switch" = "Switch test"; //Switch is supported as a Variable name 
+"ios.test04" = "Los geht's"; //"'"test for Android
+"viewController.purchaseButton.title" = "upcase, downcase test ";
+"ios.test05" = "It is a %@"; //Always use %s for strings, on iOS its converted to %@
+"ios.test06" = "Double-click left or right to skip %d seconds.";
+"i_am_a_test" = "snake_case";

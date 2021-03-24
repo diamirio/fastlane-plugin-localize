@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+		<key>simulation.time.hour</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@simulationtimehour@</string>
+			<key>simulationtimehour</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d Stunde</string>
+				<key>other</key>
+				<string>%d Stunden</string>
+			</dict>
+		</dict>
+		<key>simulation.time.hour1</key>
+		<dict>
+			<key>NSStringLocalizedFormatKey</key>
+			<string>%#@simulationtimehour1@</string>
+			<key>simulationtimehour1</key>
+			<dict>
+				<key>NSStringFormatSpecTypeKey</key>
+				<string>NSStringPluralRuleType</string>
+				<key>NSStringFormatValueTypeKey</key>
+				<string>d</string>
+				<key>one</key>
+				<string>%d Stunde</string>
+				<key>other</key>
+				<string>%d Stunden</string>
+			</dict>
+		</dict>
+</dict>
+</plist>
