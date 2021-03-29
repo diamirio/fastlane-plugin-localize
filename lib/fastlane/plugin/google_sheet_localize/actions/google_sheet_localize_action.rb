@@ -302,11 +302,7 @@ module Fastlane
 
                   if !text.include?("one|")
 
-                  matches = text.scan(/%[0-9][sdf]/)
-
-                  matches.each { |match|
-                    text = text.gsub(match, "%#{match[1]}$#{match[2].gsub("s","@")}")
-                  }
+                  text = text.gsub("$s","$@").gsub("%s","%@")
 
                   line = "\"#{identifier}\" = \"#{text}\";"
                   if !comment.to_s.empty?
@@ -519,10 +515,10 @@ module Fastlane
         result = Array.new
         filtered = self.mapInvalidPlaceholder(text)
 
-        stringIndexes = self.scan_str(filtered, /%[0-9]?[s@]/)
-        intIndexes = self.scan_str(filtered, /%[0-9]?[d]/)
-        floatIndexes = self.scan_str(filtered, /%[0-9]?[.f]/)
-        doubleIndexes = self.scan_str(filtered, /%[0-9]?ld/)
+        stringIndexes = self.scan_str(filtered, /%([0-9]+)?\$?[s@]/)
+        intIndexes = self.scan_str(filtered, /%([0-9]+)?\$?d/)
+        floatIndexes = self.scan_str(filtered, /%([0-9]+)?\$?([0-9]+)?.?([0-9]+)?f/)
+        doubleIndexes = self.scan_str(filtered, /%([0-9]+)?\$?([0-9]+)?.?([0-9]+)?ld/)
 
         if stringIndexes.count > 0
           result = result + stringIndexes.map { |e| { "index": e[0], "offset": e[1], "type": "String" }}

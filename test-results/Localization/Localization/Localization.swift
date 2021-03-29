@@ -37,7 +37,7 @@ public struct Localization {
 		return localized(identifier: "markus.test", arg0, arg1)
 	}
     /**
-    Mario hat %1s eine %2s gegessen
+    Mario hat %1$s %2$s gegessen
     
     - Sheet comment:
     ````
@@ -48,10 +48,16 @@ public struct Localization {
 		return localized(identifier: "example.example.test", arg0, arg1)
 	}
     /**
-    Mario hat %1d eine %2d gegessen
+    Mario hat %1$d %2$d gegessen
     */
     public static func halloTest(_ arg0: Int, _ arg1: Int) -> String {
 		return localized(identifier: "hallo.test", arg0, arg1)
+	}
+    /**
+    Mario hat %1$d %2$s gegessen
+    */
+    public static func exampleExampleTest2(_ arg0: Int, _ arg1: String) -> String {
+		return localized(identifier: "example.example.test2", arg0, arg1)
 	}
     /**
     Test01

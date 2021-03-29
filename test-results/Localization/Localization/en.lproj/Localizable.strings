@@ -6,6 +6,7 @@
 "markus.test" = "of %d %@ used"; //Markus test
 "example.example.test" = "Mario ate a %2$@ %1$@"; //beispiel beispiel
 "hallo.test" = "Mario ate a %2$d %1$d";
+"example.example.test2" = "Mario ate a %2$@ %1$d";
 
 
 //different group

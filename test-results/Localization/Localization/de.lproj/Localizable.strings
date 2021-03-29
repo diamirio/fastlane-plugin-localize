@@ -4,8 +4,9 @@
 "markus3.test" = "%.2f GB"; //Markus Test 3
 "murkus2.test" = "%@\n\nFehlercode: %d"; //Markus 2 test
 "markus.test" = "of %d %@ used"; //Markus test
-"example.example.test" = "Mario hat %1$@ eine %2$@ gegessen"; //beispiel beispiel
-"hallo.test" = "Mario hat %1$d eine %2$d gegessen";
+"example.example.test" = "Mario hat %1$@ %2$@ gegessen"; //beispiel beispiel
+"hallo.test" = "Mario hat %1$d %2$d gegessen";
+"example.example.test2" = "Mario hat %1$d %2$@ gegessen";
 
 
 //different group
