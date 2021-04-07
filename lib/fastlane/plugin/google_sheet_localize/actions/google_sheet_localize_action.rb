@@ -421,7 +421,7 @@ module Fastlane
                   if wordIndex % 2 == 0
                     plural = "        <item quantity=\"#{word}\">"
                   else
-                    plural = plural + "<![CDATA[#{word}]]></item>\n"
+                    plural = plural + "#{word}</item>\n"
                     line = line + plural
                   end
                 }
@@ -434,12 +434,12 @@ module Fastlane
 
                   arrayItem = arrayItem.gsub("'", "\\\\'")
 
-                  line = line + "        <item><![CDATA[#{arrayItem}]]></item>\n"
+                  line = line + "        <item>#{arrayItem}</item>\n"
                 }
 
                 line = line + "    </string-array>\n"
               else
-                line = line + "    <string name=\"#{identifier}\"><![CDATA[#{text}]]></string>\n"
+                line = line + "    <string name=\"#{identifier}\">#{text}</string>\n"
               end
 
               f.write(line)
