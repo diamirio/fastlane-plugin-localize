@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   # Don't add a dependency to fastlane or fastlane_re
   # since this would cause a circular dependency
 
-  spec.add_dependency('google_drive')
+  spec.add_dependency('google_drive', '>= 3.0.6')
 
   spec.add_development_dependency('pry')
   spec.add_development_dependency('bundler')
