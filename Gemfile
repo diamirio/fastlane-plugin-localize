@@ -1,6 +1,6 @@
 source('https://rubygems.org')
 
-gem "google_drive"
+gem "google_drive", ">= 3.0.6"
 
 gemspec
 
