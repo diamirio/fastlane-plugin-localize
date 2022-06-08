@@ -194,7 +194,7 @@ module Fastlane
 
                 identifier = item['identifier']
 
-                values = identifier.dup.split(/\.|_/)
+                values = identifier.dup.split(/\.|_|-/)
 
                 constantName = ""
 
