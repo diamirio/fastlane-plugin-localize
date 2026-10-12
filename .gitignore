@@ -10,3 +10,6 @@ fastlane/README.md
 fastlane/report.xml
 coverage
 test-results/google_drive_credentials.json
+xcuserdata/
+.DS_Store
+test-results/rspec/

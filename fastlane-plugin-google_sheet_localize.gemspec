@@ -1,6 +1,4 @@
-# coding: utf-8
-
-lib = File.expand_path("../lib", __FILE__)
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fastlane/plugin/google_sheet_localize/version'
 
@@ -11,25 +9,26 @@ Gem::Specification.new do |spec|
   spec.email         = 'mario_hahn@me.com'
 
   spec.summary       = 'Creates .strings files for iOS and strings.xml files for Android'
-  spec.homepage      = "https://github.com/tailoredmedia/fastlane-plugin-localize"
-  spec.license       = "MIT"
+  spec.homepage      = 'https://github.com/diamirio/fastlane-plugin-localize'
+  spec.license       = 'MIT'
 
-  spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
-  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.files         = Dir['lib/**/*'] + %w[README.md LICENSE]
+  spec.required_ruby_version = '>= 3.0'
+  spec.metadata['rubygems_mfa_required'] = 'true'
   spec.require_paths = ['lib']
 
   # Don't add a dependency to fastlane or fastlane_re
   # since this would cause a circular dependency
 
-  spec.add_dependency('google_drive', '>= 3.0.6')
+  spec.add_dependency('google-apis-sheets_v4', '>= 0.4.0')
+  spec.add_dependency('googleauth', '>= 1.0')
 
-  spec.add_development_dependency('pry')
   spec.add_development_dependency('bundler')
+  spec.add_development_dependency('fastlane', '>= 2.200.0')
+  spec.add_development_dependency('pry')
+  spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec')
   spec.add_development_dependency('rspec_junit_formatter')
-  spec.add_development_dependency('rake')
-  spec.add_development_dependency('rubocop', '0.49.1')
-  spec.add_development_dependency('rubocop-require_tools')
+  spec.add_development_dependency('rubocop')
   spec.add_development_dependency('simplecov')
-  spec.add_development_dependency('fastlane', '>= 2.111.0')
 end
