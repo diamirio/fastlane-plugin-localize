@@ -1,5 +1,6 @@
 # google_sheet_localize plugin
 
+[![CI](https://github.com/diamirio/fastlane-plugin-localize/actions/workflows/ci.yml/badge.svg)](https://github.com/diamirio/fastlane-plugin-localize/actions/workflows/ci.yml)
 [![fastlane Plugin Badge](https://rawcdn.githack.com/fastlane/fastlane/master/fastlane/assets/plugin-badge.svg)](https://rubygems.org/gems/fastlane-plugin-google_sheet_localize)
 
 ## Getting Started
@@ -16,7 +17,7 @@ Creates .strings files for iOS and strings.xml files for Android
 
 to use our plugin you have to duplicate this google sheet: [_Example_](https://docs.google.com/spreadsheets/d/1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc/edit?usp=sharing) 
 
-Google Drive access token: [_Guide_](https://medium.com/@osanda.deshan/getting-google-oauth-access-token-using-google-apis-18b2ba11a11a)
+Authentication uses a Google service account key (JSON file, passed as `service_account_path`). Enable the Google Sheets API for the service account's project and share the sheet with the service account's email address (read access is enough).
 
 * The language_titles (the columns which should be exported)
 * The default_language (If a string is not present in a specific language, this is the fallback)
@@ -46,11 +47,35 @@ other|%d artists
 In order to support Objective-C, the plugin provides the `support_objc` argument, which is default `false`.  
 Therefore, if you need Objective-C support pass `support_objc: true`.
 
+### Generated Swift
+
+The `Localization.swift` the plugin generates is `public` by default. A Swift package that uses it only internally can pass `access_level: "package"` (or `"internal"`), so the type does not become part of its API or clash with an app's own `Localization`.
+
+`swift_type: "configurable_struct"` generates a struct instead, with one `LocalizedStringResource` per text, looked up in the generated files. Texts with arguments are closures that return the resource. An app, or the users of a framework, can replace any text with its own, for example with a string literal that Xcode extracts into the app's String Catalog:
+
+```ruby
+google_sheet_localize(..., swift_type: "configurable_struct", type_name: "AppTexts")
+```
+
+```swift
+var texts = AppTexts()
+texts.common.cancel = "Abort"
+texts.review.page = { page, count in "Sheet \(page) of \(count)" }
+
+Button(texts.common.cancel) { ... }
+```
+
+The default value of each resource is the text in `comment_example_language`, with its placeholders interpolated in order; plural texts use their `other` form.
+
+Texts are grouped into nested structs by the first segment of their identifier, so `review.page.title` becomes `review.pageTitle`. `type_name` names the struct and its file (`Localization` by default).
+
+`file_header` is written at the top of the generated Swift file, for example `"// swift-format-ignore-file"` to keep a formatter away from it.
+
 ## Example
 
 ```ruby
   lane :localize do
-    google_sheet_localize(service_account_path: "./fastlane/google_drive_credentials.json",
+    google_sheet_localize(service_account_path: "./fastlane/service_account.json",
                                       sheet_id: "sheet id",
                                       platform: "ios",
                                           tabs: ["3TV"], #array of tab titles in google sheet
@@ -64,15 +89,10 @@ Therefore, if you need Objective-C support pass `support_objc: true`.
 
 ## Run tests for this plugin
 
-To run both the tests, and code style validation, run
+Requires Ruby 3.0 or newer. To run both the tests and code style validation, run
 
 ```
-rake
-```
-
-To automatically fix many of the styling issues, use
-```
-rubocop -a
+bundle exec rake
 ```
 
 ## Issues and Feedback

@@ -1,30 +1,30 @@
 platform :ios do
   lane :test do
-    google_sheet_localize(service_account_path: "./test-results/google_drive_credentials.json",
-                                      sheet_id: "1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc",
-                                      tabs: ["_Template"],
-                             localization_path: "./test-results/Localization/Localization",
-                          code_generation_path: "./test-results/Localization/Localization",
-                               language_titles: ["de", "en"],
-                              default_language: "de")
-   end
+    google_sheet_localize(service_account_path: './test-results/google_drive_credentials.json',
+                          sheet_id: '1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc',
+                          tabs: ['_Template'],
+                          localization_path: './test-results/Localization/Localization',
+                          code_generation_path: './test-results/Localization/Localization',
+                          language_titles: %w[de en],
+                          default_language: 'de')
+  end
 end
 
 platform :android do
   lane :test do
-    google_sheet_localize(service_account_path: "./test-results/google_drive_credentials.json",
-                                    sheet_id: "1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc",
-                           localization_path: "./test-results",
-                             language_titles: ["de", "en"],
-                            default_language: "de")
-   end
+    google_sheet_localize(service_account_path: './test-results/google_drive_credentials.json',
+                          sheet_id: '1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc',
+                          localization_path: './test-results',
+                          language_titles: %w[de en],
+                          default_language: 'de')
+  end
 end
 
 lane :test do
-  google_sheet_localize(service_account_path: "./test-results/google_drive_credentials.json",
-                                    sheet_id: "1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc",
-                           localization_path: "./test-results",
-                                    platform: "web",
-                             language_titles: ["de", "en"],
-                            default_language: "de")
- end
+  google_sheet_localize(service_account_path: './test-results/google_drive_credentials.json',
+                        sheet_id: '1fwRj1ZFPu2XlrDqkaqmIpJulqR5OVFEZnN35a9v37yc',
+                        localization_path: './test-results',
+                        platform: 'web',
+                        language_titles: %w[de en],
+                        default_language: 'de')
+end
